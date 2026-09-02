@@ -52,9 +52,10 @@
     }
   </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 antialiased min-h-screen flex flex-col hidden" id="main-body">
 
-  <header id="public-header" class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm transition-all">
+  <!-- SISI PUBLIK (Siswa & Guru Non-BSAN) -->
+  <header id="public-header" class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm transition-all hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center h-16">
       <div class="flex items-center space-x-3 cursor-pointer" onclick="goToView('beranda')">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-500 flex items-center justify-center text-white text-lg shadow-sm">
@@ -66,15 +67,15 @@
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button onclick="openModal('modal-login')" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-user-shield text-slate-500"></i>
-          <span class="hidden sm:inline">Portal Tim BSAN</span>
+        <button onclick="backToPortal()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span class="hidden sm:inline">Kembali ke Portal</span>
         </button>
       </div>
     </div>
   </header>
 
-  <div id="public-mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-3 py-2 flex justify-around shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+  <div id="public-mobile-nav" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40 px-3 py-2 flex justify-around shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] hidden">
     <button onclick="goToView('beranda')" class="flex flex-col items-center text-[10px] font-medium text-slate-600 hover:text-indigo-600 py-1">
         <i class="fa-solid fa-house text-lg mb-1"></i> Beranda
     </button>
@@ -83,7 +84,7 @@
     </button>
   </div>
 
-  <main id="public-main" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 mb-20 md:mb-6 overflow-y-auto block">
+  <main id="public-main" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 mb-20 md:mb-6 overflow-y-auto hidden">
     
     <section id="view-beranda" class="space-y-6 block">
       
@@ -226,8 +227,8 @@
           </div>
           
           <div id="identitas-aduan" class="grid grid-cols-1 sm:grid-cols-2 gap-4 transition-opacity">
-            <input type="text" id="aduan-nama" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-rose-500" placeholder="Nama Lengkap">
-            <input type="text" id="aduan-kelas" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-rose-500" placeholder="Kelas">
+            <input type="text" id="aduan-nama" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-rose-500 bg-slate-50 font-bold" placeholder="Nama Lengkap">
+            <input type="text" id="aduan-kelas" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-rose-500 bg-slate-50 font-bold" placeholder="Kelas (Optional)">
           </div>
           
           <select id="aduan-kategori" required class="w-full text-sm p-3 border rounded-xl bg-white outline-none focus:border-rose-500">
@@ -261,10 +262,10 @@
             <i class="fa-solid fa-user-nurse text-indigo-500 mr-2"></i> Antre BK
         </h2>
         <form id="form-bk" onsubmit="handleFormBK(event)" class="space-y-4">
-          <input type="text" id="bk-nama" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="Nama Lengkap">
+          <input type="text" id="bk-nama" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500 bg-slate-50 font-bold" placeholder="Nama Lengkap">
           <div class="grid grid-cols-2 gap-4">
-              <input type="text" id="bk-kelas" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="Kelas">
-              <input type="text" id="bk-nisn" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="NISN">
+              <input type="text" id="bk-kelas" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500 bg-slate-50 font-bold" placeholder="Kelas / Role">
+              <input type="text" id="bk-nisn" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="NISN (Siswa)">
           </div>
           <div class="grid grid-cols-2 gap-4">
               <input type="date" id="bk-tanggal" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500">
@@ -290,6 +291,7 @@
             <i class="fa-solid fa-wrench text-sky-500 mr-2"></i> Lapor Sarpras
         </h2>
         <form id="form-sarpras" onsubmit="handleFormSarpras(event)" class="space-y-4">
+          <input type="hidden" id="sar-pelapor">
           <input type="text" id="sar-lokasi" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-sky-500" placeholder="Lokasi (Contoh: Toilet Gedung A)">
           <select id="sar-jenis" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-sky-500 bg-white">
               <option value="" disabled selected>Jenis Kerusakan...</option>
@@ -318,8 +320,8 @@
         </h2>
         <form id="form-refleksi" onsubmit="handleFormRefleksi(event)" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
-              <input type="text" id="ref-nama" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-emerald-500" placeholder="Nama">
-              <input type="text" id="ref-kelas" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-emerald-500" placeholder="Kelas">
+              <input type="text" id="ref-nama" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50 font-bold" placeholder="Nama">
+              <input type="text" id="ref-kelas" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-emerald-500 bg-slate-50 font-bold" placeholder="Kelas">
           </div>
           <select id="ref-emosi" class="w-full text-sm p-3 border rounded-xl outline-none focus:border-emerald-500 bg-white">
               <option value="Sangat Bahagia / Semangat">😄 Sangat Bahagia</option>
@@ -344,7 +346,7 @@
         </h2>
         <form id="form-kudos" onsubmit="handleFormKudos(event)" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
-              <input type="text" id="kud-dari" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-amber-500" placeholder="Dari">
+              <input type="text" id="kud-dari" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-amber-500 bg-slate-50 font-bold" placeholder="Dari">
               <input type="text" id="kud-untuk" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-amber-500" placeholder="Untuk Siapa?">
           </div>
           <select id="kud-kategori" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-amber-500 bg-white">
@@ -371,7 +373,7 @@
     </section>
   </main>
 
-  <!-- ================= LAYOUT KHUSUS ADMIN & TIM ================= -->
+  <!-- ================= LAYOUT KHUSUS ADMIN & TIM BSAN ================= -->
   <div id="admin-layout" class="admin-layout hidden">
     
     <!-- Sidebar Admin -->
@@ -421,8 +423,11 @@
       </div>
       
       <div class="p-4 border-t border-slate-200">
-        <button onclick="logoutAdmin()" class="w-full p-2.5 text-sm font-bold text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition">
-            <i class="fa-solid fa-right-from-bracket mr-2"></i> Keluar
+        <button onclick="logoutAdmin()" class="w-full p-2.5 text-sm font-bold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition mb-2">
+            <i class="fa-solid fa-exchange-alt mr-2"></i> Ke Tampilan Publik
+        </button>
+        <button onclick="backToPortal()" class="w-full p-2.5 text-sm font-bold text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition">
+            <i class="fa-solid fa-right-from-bracket mr-2"></i> Keluar Portal
         </button>
       </div>
     </aside>
@@ -575,19 +580,6 @@
   </div>
 
   <!-- ================= MODALS ================= -->
-
-  <!-- Modal Login -->
-  <div id="modal-login" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl">
-        <h3 class="font-bold text-slate-800 text-center text-lg mb-4">Login Portal Petugas</h3>
-        <form onsubmit="handleLoginPetugas(event)" class="space-y-4">
-            <input type="text" id="login-username" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="Username">
-            <input type="password" id="login-pin" required class="w-full text-sm p-3 border rounded-xl outline-none focus:border-indigo-500" placeholder="PIN/Password">
-            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition">Masuk Workspace</button>
-        </form>
-        <button onclick="closeModal('modal-login')" class="w-full mt-4 py-2 text-slate-500 hover:text-slate-800 text-xs transition">Batal</button>
-    </div>
-  </div>
 
   <!-- Modal Resi Publik -->
   <div id="modal-resi" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 hidden backdrop-blur-sm">
@@ -796,8 +788,135 @@
     let appData = { tugas: [], proker: [], temuan: [], portofolio: [] };
 
     window.addEventListener('DOMContentLoaded', () => { 
-        goToView('beranda'); 
+        checkSSO(); 
     });
+
+    function handleMissingSession() {
+        toggleLoading(false);
+        const mainBody = document.getElementById('main-body');
+        mainBody.classList.remove('hidden');
+        mainBody.innerHTML = `
+            <div class="h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+                <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md text-center">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Akses Ditolak</h2>
+                    <p class="text-sm text-slate-500 mb-6">Sistem SSO mendeteksi tidak ada sesi yang aktif. Silakan login terlebih dahulu melalui Portal Utama SIAGA.</p>
+                    <button onclick="backToPortal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
+                        Kembali ke Portal Utama
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function backToPortal() {
+        try {
+            if (window.location.protocol === 'blob:' || window.location.protocol === 'about:') {
+                showToast('Mode Preview aktif. Anda akan dilempar ke ../index.html', 'info');
+            } else {
+                window.location.href = '../index.html';
+            }
+        } catch (e) {
+            showToast('Akan kembali ke Portal Utama', 'info');
+        }
+    }
+
+    async function checkSSO() {
+        toggleLoading(true);
+        const savedUserStr = localStorage.getItem('siaga_user');
+        const creds = localStorage.getItem('siaga_credentials');
+
+        if (!savedUserStr) {
+            handleMissingSession();
+            return;
+        }
+
+        try {
+            const savedUser = JSON.parse(savedUserStr);
+            if (savedUser.role === 'siswa') {
+                setupPublicView(savedUser);
+                toggleLoading(false);
+            } else if (creds) {
+                const decoded = atob(creds);
+                const firstColon = decoded.indexOf(':');
+                const u = decoded.substring(0, firstColon);
+                const p = decoded.substring(firstColon + 1);
+                
+                // Coba login sebagai petugas BSAN
+                const res = await callAPI('loginPetugas', { username: u, pin: p });
+                toggleLoading(false);
+                
+                if (res.success) {
+                    setupAdminView(res.user);
+                } else {
+                    setupPublicView(savedUser);
+                }
+            } else {
+                handleMissingSession();
+            }
+        } catch(e) {
+            handleMissingSession();
+        }
+    }
+
+    function setupPublicView(user) {
+        document.getElementById('main-body').classList.remove('hidden');
+        document.getElementById('public-header').classList.remove('hidden');
+        if (window.innerWidth < 768) {
+            document.getElementById('public-mobile-nav').classList.remove('hidden');
+        }
+        document.getElementById('public-main').classList.remove('hidden');
+        
+        // Auto-fill forms if student
+        if (user.role === 'siswa') {
+            const fieldsToFill = [
+                {id: 'aduan-nama', val: user.nama}, {id: 'aduan-kelas', val: user.kelas},
+                {id: 'bk-nama', val: user.nama}, {id: 'bk-kelas', val: user.kelas},
+                {id: 'ref-nama', val: user.nama}, {id: 'ref-kelas', val: user.kelas},
+                {id: 'kud-dari', val: user.nama}, {id: 'sar-pelapor', val: user.nama}
+            ];
+            fieldsToFill.forEach(f => {
+                const el = document.getElementById(f.id);
+                if (el) { el.value = f.val; el.readOnly = true; }
+            });
+        } else if (user.role === 'guru') {
+            const fieldsToFill = [
+                {id: 'aduan-nama', val: user.nama},
+                {id: 'bk-nama', val: user.nama}, {id: 'bk-kelas', val: 'Guru'},
+                {id: 'ref-nama', val: user.nama}, {id: 'ref-kelas', val: 'Guru'},
+                {id: 'kud-dari', val: user.nama}, {id: 'sar-pelapor', val: user.nama}
+            ];
+            fieldsToFill.forEach(f => {
+                const el = document.getElementById(f.id);
+                if (el) { el.value = f.val; }
+            });
+        }
+        
+        goToView('beranda');
+    }
+
+    function setupAdminView(user) {
+        loggedUser = user;
+        document.getElementById('main-body').classList.remove('hidden');
+        document.getElementById('admin-layout').classList.remove('hidden');
+        
+        document.getElementById('admin-user-name').innerText = `${loggedUser.nama}`; 
+        document.getElementById('admin-badge-divisi').innerText = `${loggedUser.role} / ${loggedUser.divisi}`;
+        
+        populateSaranInput(loggedUser.divisi);
+        
+        const r = loggedUser.role.toLowerCase(); 
+        const d = loggedUser.divisi.toLowerCase();
+        if(r.includes('kepala') || r.includes('admin') || r.includes('pengawas') || d.includes('penanggung jawab') || d.includes('ketua') || d.includes('perlindungan') || d.includes('sekretaris') || r.includes('bk')) {
+            document.getElementById('nav-group-layanan').classList.remove('hidden');
+        } else {
+            document.getElementById('nav-group-layanan').classList.add('hidden');
+        }
+        
+        switchAdminTab('dashboard');
+    }
 
     // Fungsi Utama Panggilan API
     async function callAPI(action, dataObj = {}) {
@@ -983,9 +1102,24 @@
         const c = document.getElementById(id); 
         if(cb.checked) { 
             c.classList.add('opacity-50','pointer-events-none'); 
-            inputs.forEach(i=>document.getElementById(i).value=''); 
+            inputs.forEach(i=>{
+              const el = document.getElementById(i);
+              if(el && !el.readOnly) el.value=''; 
+              else if(el && el.readOnly) {
+                // If it was auto-filled, we keep it but it won't be sent as identity later
+              }
+            }); 
         } else { 
             c.classList.remove('opacity-50','pointer-events-none'); 
+            // if it's a student, re-fill
+            const userStr = localStorage.getItem('siaga_user');
+            if(userStr) {
+               const u = JSON.parse(userStr);
+               if(u.role === 'siswa') {
+                   const nm = document.getElementById('aduan-nama'); if(nm) nm.value = u.nama;
+                   const kl = document.getElementById('aduan-kelas'); if(kl) kl.value = u.kelas;
+               }
+            }
         } 
     }
 
@@ -995,12 +1129,16 @@
         const b = await getMultipleBuktiData('aduan-bukti-file'); 
         if(b===null) return; 
         
+        const isAnonim = document.getElementById('aduan-anonim').checked;
+        const namaVal = isAnonim ? 'Anonim' : document.getElementById('aduan-nama').value;
+        const kelasVal = isAnonim ? '-' : document.getElementById('aduan-kelas').value;
+
         toggleLoading(true); 
         const res = await callAPI('submitAduan', { 
-            isAnonim: document.getElementById('aduan-anonim').checked, 
+            isAnonim: isAnonim, 
             nisn: '', 
-            nama: document.getElementById('aduan-nama').value, 
-            kelas: document.getElementById('aduan-kelas').value, 
+            nama: namaVal, 
+            kelas: kelasVal, 
             kategori: document.getElementById('aduan-kategori').value, 
             kronologi: document.getElementById('aduan-kronologi').value, 
             bukti: b 
@@ -1045,7 +1183,7 @@
         
         toggleLoading(true); 
         const res = await callAPI('submitSarpras', { 
-            pelapor: '', 
+            pelapor: document.getElementById('sar-pelapor').value, 
             lokasi: document.getElementById('sar-lokasi').value, 
             jenis: document.getElementById('sar-jenis').value, 
             deskripsi: document.getElementById('sar-deskripsi').value, 
@@ -1128,55 +1266,18 @@
         }
     }
 
-    // Fitur Admin & Tim BSAN
-    async function handleLoginPetugas(e) {
-      e.preventDefault(); 
-      toggleLoading(true); 
-      
-      const res = await callAPI('loginPetugas', { 
-          username: document.getElementById('login-username').value, 
-          pin: document.getElementById('login-pin').value 
-      }); 
-      toggleLoading(false);
-      
-      if (res.success) {
-        loggedUser = res.user; 
-        closeModal('modal-login');
-        
-        // Hide Public, Show Admin
-        document.getElementById('public-header').classList.add('hidden'); 
-        document.getElementById('public-mobile-nav').classList.add('hidden'); 
-        document.getElementById('public-main').classList.add('hidden'); 
-        document.getElementById('admin-layout').classList.remove('hidden');
-        
-        document.getElementById('admin-user-name').innerText = `${loggedUser.nama}`; 
-        document.getElementById('admin-badge-divisi').innerText = `${loggedUser.role} / ${loggedUser.divisi}`;
-        
-        // Populate Datalist Saran (Otomatis isi sesuai tupoksi)
-        populateSaranInput(loggedUser.divisi);
-        
-        // RBAC Layanan Kasus
-        const r = loggedUser.role.toLowerCase(); 
-        const d = loggedUser.divisi.toLowerCase();
-        if(r.includes('kepala') || r.includes('admin') || r.includes('pengawas') || d.includes('penanggung jawab') || d.includes('ketua') || d.includes('perlindungan') || d.includes('sekretaris') || r.includes('bk')) {
-            document.getElementById('nav-group-layanan').classList.remove('hidden');
-        } else {
-            document.getElementById('nav-group-layanan').classList.add('hidden');
-        }
-        
-        switchAdminTab('dashboard');
-      } else {
-          showToast(res.message, 'error'); 
-      }
-    }
-
     function logoutAdmin() { 
         loggedUser = null; 
         document.getElementById('admin-layout').classList.add('hidden'); 
-        document.getElementById('public-header').classList.remove('hidden'); 
-        document.getElementById('public-mobile-nav').classList.remove('hidden'); 
-        document.getElementById('public-main').classList.remove('hidden'); 
-        goToView('beranda'); 
+        
+        // Cek apakah masih ada session SSO
+        const savedUserStr = localStorage.getItem('siaga_user');
+        if (savedUserStr) {
+            const savedUser = JSON.parse(savedUserStr);
+            setupPublicView(savedUser);
+        } else {
+            backToPortal();
+        }
     }
     
     function toggleSidebar() { 
