@@ -20,7 +20,7 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
     .loader { border-top-color: #4f46e5; -webkit-animation: spinner 1s linear infinite; animation: spinner 1s linear infinite; }
     @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .view-section { display: none; }
@@ -35,14 +35,14 @@
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <div id="loading" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+  <div id="loading" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
     <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-200 h-12 w-12 mb-4"></div>
-    <p class="text-white font-semibold tracking-wide">Memproses Data Server...</p>
+    <p id="loading-text" class="text-white font-semibold tracking-wide">Memverifikasi Akses Portal...</p>
   </div>
 
-  <nav class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-blue-600 text-white shadow-lg sticky top-0 z-40">
+  <nav class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-blue-600 text-white shadow-lg sticky top-0 z-40 hidden" id="main-nav">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
-      <div class="font-extrabold text-xl flex items-center gap-3 cursor-pointer" onclick="goHome()">
+      <div class="font-extrabold text-xl flex items-center gap-3 cursor-pointer" onclick="backToPortal()">
         <div class="bg-white text-indigo-700 p-2 rounded-xl shadow-md">
           <i class="fa-solid fa-graduation-cap text-lg"></i>
         </div>
@@ -56,136 +56,22 @@
           <p id="user-info" class="text-sm font-bold text-white"></p>
           <p id="role-info" class="text-xs text-indigo-200"></p>
         </div>
-        <button onclick="logout()" class="bg-indigo-800/60 hover:bg-red-500 text-white border border-indigo-400/30 hover:border-red-500 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer">
+        <button onclick="handleLogout()" class="bg-indigo-800/60 hover:bg-red-500 text-white border border-indigo-400/30 hover:border-red-500 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-sm cursor-pointer">
           <i class="fa-solid fa-right-from-bracket"></i> Keluar
         </button>
       </div>
     </div>
   </nav>
 
-  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full hidden" id="main-content">
     
-    <!-- VIEW: LANDING -->
-    <div id="view-landing" class="view-section active-view">
-      <div class="text-center mb-12">
-        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">Sistem Akademik Terpadu</span>
-        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-3">Selamat Datang-di Siaga Mengajar</h1>
-        <p class="text-slate-500 max-w-2xl mx-auto text-sm md:text-base">Portal Manajemen Akademik, Presensi, Nilai, dan Jurnal Harian Mengajar Guru. Silakan pilih portal akses Anda.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        <button onclick="showLogin('Admin')" class="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-2xl border border-slate-200/80 flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 relative overflow-hidden text-center cursor-pointer">
-          <div class="absolute inset-0 bg-blue-600 transform translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out"></div>
-          <div class="relative z-10 group-hover:text-white transition-colors duration-300">
-            <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 group-hover:bg-blue-500/30 group-hover:text-white transition-all shadow-sm">
-              <i class="fa-solid fa-user-tie"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2 text-slate-800 group-hover:text-white">Kepala Sekolah</h2>
-            <p class="text-xs text-slate-500 group-hover:text-blue-100">Supervisi jurnal mengajar, keaktifan guru, rekap presensi, & master leger.</p>
-          </div>
-        </button>
-
-        <button onclick="showLogin('Guru')" class="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-2xl border border-slate-200/80 flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 relative overflow-hidden text-center cursor-pointer">
-          <div class="absolute inset-0 bg-indigo-600 transform translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out"></div>
-          <div class="relative z-10 group-hover:text-white transition-colors duration-300">
-            <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 group-hover:bg-indigo-500/30 group-hover:text-white transition-all shadow-sm">
-              <i class="fa-solid fa-chalkboard-user"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2 text-slate-800 group-hover:text-white">Portal Guru</h2>
-            <p class="text-xs text-slate-500 group-hover:text-indigo-100">Kelola absensi kelas, nilai tugas/ujian, dan jurnal mengajar harian.</p>
-          </div>
-        </button>
-
-        <button onclick="openPortalTamu()" class="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-2xl border border-slate-200/80 flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 relative overflow-hidden text-center cursor-pointer">
-          <div class="absolute inset-0 bg-emerald-500 transform translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out"></div>
-          <div class="relative z-10 group-hover:text-white transition-colors duration-300">
-            <div class="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-4xl mx-auto mb-6 group-hover:bg-emerald-400/30 group-hover:text-white transition-all shadow-sm">
-              <i class="fa-solid fa-users text-3xl"></i>
-            </div>
-            <h2 class="text-xl font-bold mb-2 text-slate-800 group-hover:text-white">Siswa & Orang Tua</h2>
-            <p class="text-xs text-slate-500 group-hover:text-emerald-100">Cek rekapitulasi nilai, presensi, & unduh raport digital tanpa login.</p>
-          </div>
-        </button>
-      </div>
-    </div>
-
-    <!-- VIEW: LOGIN -->
-    <div id="view-login" class="view-section">
-      <div class="max-w-md mx-auto">
-        <button onclick="goHome()" class="text-indigo-600 hover:text-indigo-800 font-semibold text-sm mb-6 flex items-center gap-2 transition-colors cursor-pointer">
-          <i class="fa-solid fa-arrow-left"></i> Kembali ke Pilihan Gerbang
-        </button>
-        
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-          <div class="bg-indigo-50 p-6 text-center border-b border-indigo-100">
-            <h2 id="login-title" class="text-2xl font-bold text-indigo-900">Login Sistem</h2>
-            <p id="login-subtitle" class="text-xs text-indigo-700 mt-1">Masukkan akun terdaftar Anda</p>
-          </div>
-          <div class="p-8">
-            <form onsubmit="event.preventDefault(); doLogin();" class="space-y-5">
-              <div>
-                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Username</label>
-                <div class="relative">
-                  <i class="fa-regular fa-user absolute left-3.5 top-3.5 text-slate-400"></i>
-                  <input type="text" id="username" placeholder="Masukkan username" class="w-full pl-10 p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-slate-50 focus:bg-white transition-all">
-                </div>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Password</label>
-                <div class="relative">
-                  <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-400"></i>
-                  <input type="password" id="password" placeholder="••••••••" class="w-full pl-10 p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm bg-slate-50 focus:bg-white transition-all">
-                </div>
-              </div>
-              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-indigo-200 hover:shadow-lg flex justify-center items-center gap-2 text-sm cursor-pointer">
-                Masuk Portal <i class="fa-solid fa-arrow-right text-xs"></i>
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW: PORTAL TAMU -->
-    <div id="view-portal-tamu" class="view-section">
-      <div class="max-w-md mx-auto">
-        <button onclick="goHome()" class="text-emerald-600 hover:text-emerald-800 font-semibold text-sm mb-4 flex items-center gap-2 transition-colors cursor-pointer">
-          <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
-        </button>
-        
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-          <div class="bg-emerald-50 p-6 text-center border-b border-emerald-100">
-            <h2 class="text-xl font-bold text-emerald-900">Pencarian Data Siswa</h2>
-            <p class="text-xs text-emerald-700 mt-1">Pilih kelas dan nama siswa untuk melihat capaian akademik</p>
-          </div>
-          <div class="p-8 space-y-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Pilih Kelas</label>
-              <select id="tamu-kelas" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50 focus:bg-white cursor-pointer" onchange="loadSiswaTamu()">
-                <option value="">-- Memuat Kelas... --</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Pilih Siswa</label>
-              <select id="tamu-siswa" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50 disabled:bg-slate-100 cursor-pointer" disabled>
-                <option value="">-- Pilih Kelas Terlebih Dahulu --</option>
-              </select>
-            </div>
-            <button onclick="cekNilaiTamu()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-emerald-200 hover:shadow-lg flex justify-center items-center gap-2 text-sm cursor-pointer">
-              <i class="fa-solid fa-magnifying-glass"></i> Lihat Rekap & Raport
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW: HASIL TAMU -->
+    <!-- VIEW: HASIL TAMU (SISWA) -->
     <div id="view-hasil-tamu" class="view-section">
       <div class="max-w-5xl mx-auto space-y-6">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <div>
-            <button onclick="openPortalTamu()" class="text-emerald-600 hover:text-emerald-800 font-semibold text-xs mb-2 flex items-center gap-1 transition-colors cursor-pointer">
-              <i class="fa-solid fa-arrow-left"></i> Cari Siswa Lain
+            <button onclick="backToPortal()" class="text-emerald-600 hover:text-emerald-800 font-semibold text-xs mb-2 flex items-center gap-1 transition-colors cursor-pointer">
+              <i class="fa-solid fa-arrow-left"></i> Kembali ke Portal Utama
             </button>
             <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
               <i class="fa-solid fa-id-card text-emerald-500"></i> <span id="nama-siswa-tamu"></span>
@@ -240,7 +126,7 @@
       <div id="admin-banner" class="hidden bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 rounded-2xl p-6 shadow-lg text-white flex justify-between items-center flex-wrap gap-4">
         <div>
           <span class="bg-white/20 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Supervisi Utama Kepala Sekolah</span>
-          <h2 class="text-2xl font-extrabold mt-2 mb-1">Selamat Datang, Bapak Ahmad Yulian</h2>
+          <h2 class="text-2xl font-extrabold mt-2 mb-1" id="admin-welcome-text">Selamat Datang</h2>
           <p class="text-blue-100 text-xs">Pantau seluruh catatan jurnal mengajar, presensi harian, dan capaian nilai sekolah.</p>
         </div>
         <button onclick="downloadLegerAdmin()" class="bg-white text-indigo-700 hover:bg-indigo-50 font-bold px-5 py-2.5 rounded-xl shadow-md transition-all text-xs flex items-center gap-2 cursor-pointer">
@@ -623,19 +509,196 @@
     let currentTamuNilai = [];
     let teacherJadwalList = [];
 
+    // ==========================================
+    // INTEGRASI SSO SIAGA PORTAL
+    // ==========================================
     window.onload = function() {
-      loadKelasTamu();
-      const today = new Date().toISOString().split('T')[0];
-      if (document.getElementById('guru-tanggal')) {
-        document.getElementById('guru-tanggal').value = today;
-      }
+      checkSSO();
     };
+
+    function handleMissingSession() {
+        hideLoading();
+        document.body.innerHTML = `
+            <div class="h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+                <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md text-center">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                        🔒
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Akses Ditolak</h2>
+                    <p class="text-sm text-slate-500 mb-6">Sistem SSO mendeteksi tidak ada sesi yang aktif. Silakan login terlebih dahulu melalui Portal Utama SIAGA.</p>
+                    <button onclick="backToPortal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
+                        Kembali ke Portal Utama
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function backToPortal() {
+        try {
+            if (window.location.protocol === 'blob:' || window.location.protocol === 'about:') {
+                Swal.fire('Mode Preview', 'Sistem SSO aktif. Di web Hosting sesungguhnya, tombol ini akan membawa Anda ke ../index.html', 'info');
+            } else {
+                window.location.href = '../index.html';
+            }
+        } catch (e) {
+            Swal.fire('Mode Preview', 'Sistem SSO aktif. Di web Hosting sesungguhnya, tombol ini akan membawa Anda ke ../index.html', 'info');
+        }
+    }
+
+    async function checkSSO() {
+        showLoading();
+        const savedUserStr = localStorage.getItem('siaga_user');
+        const creds = localStorage.getItem('siaga_credentials');
+
+        if (!savedUserStr) {
+            handleMissingSession();
+            return;
+        }
+
+        try {
+            const savedUser = JSON.parse(savedUserStr);
+            if (savedUser.role === 'siswa') {
+                currentUser = { role: 'siswa', nama: savedUser.nama, kelas: savedUser.kelas };
+                setupUINavbar();
+                document.getElementById('role-info').innerText = 'Siswa - ' + currentUser.kelas;
+                await loadDataSiswaAuto();
+            } else if (creds) {
+                const decoded = atob(creds);
+                const firstColon = decoded.indexOf(':');
+                const u = decoded.substring(0, firstColon);
+                const p = decoded.substring(firstColon + 1);
+                
+                const res = await callAPI('login', 'POST', { username: u, password: p });
+                if (res && res.success) {
+                    currentUser = res.user;
+                    setupUINavbar();
+                    document.getElementById('role-info').innerText = currentUser.role === 'Admin' ? 'Kepala Sekolah' : 'Guru Pengajar';
+                    
+                    if (currentUser.role === 'Admin') {
+                      document.getElementById('admin-banner').classList.remove('hidden');
+                      document.getElementById('admin-welcome-text').innerText = 'Selamat Datang, ' + currentUser.nama;
+                      document.getElementById('admin-supervisi-menu').classList.remove('hidden');
+                      document.getElementById('menu-input-guru').classList.add('hidden'); 
+                    } else {
+                      document.getElementById('admin-banner').classList.add('hidden');
+                      document.getElementById('admin-supervisi-menu').classList.add('hidden');
+                      document.getElementById('menu-input-guru').classList.remove('hidden'); 
+                    }
+
+                    const today = new Date().toISOString().split('T')[0];
+                    if (document.getElementById('guru-tanggal')) {
+                      document.getElementById('guru-tanggal').value = today;
+                    }
+
+                    hideLoading();
+                    setView('view-guru');
+                } else {
+                    localStorage.removeItem('siaga_user');
+                    localStorage.removeItem('siaga_credentials');
+                    handleMissingSession();
+                }
+            } else {
+                handleMissingSession();
+            }
+        } catch(e) {
+            handleMissingSession();
+        }
+    }
+
+    function setupUINavbar() {
+        document.getElementById('main-nav').classList.remove('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        document.getElementById('nav-menu').classList.remove('hidden');
+        document.getElementById('user-info').innerText = currentUser.nama;
+    }
+
+    function handleLogout() {
+        Swal.fire({
+            title: 'Kembali ke Portal?', text: "Anda akan dikembalikan ke Portal Utama.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#4f46e5', cancelButtonColor: '#ef4444', confirmButtonText: 'Ya, Keluar'
+        }).then((result) => { 
+            if (result.isConfirmed) {
+                backToPortal();
+            }
+        });
+    }
+
+    async function loadDataSiswaAuto() {
+        document.getElementById('loading-text').innerText = 'Menarik Catatan Akademik...';
+        
+        // Cari NIS berdasarkan Nama dan Kelas di database
+        const siswaList = await callAPI('getSiswaInput', 'GET', { kelas: currentUser.kelas });
+        if (!siswaList) {
+            hideLoading();
+            Swal.fire('Gagal', 'Tidak dapat mengambil data kelas dari server.', 'error');
+            return;
+        }
+        
+        const myData = siswaList.find(s => s.nama === currentUser.nama);
+        if (!myData) {
+            hideLoading();
+            Swal.fire('Data Tidak Ditemukan', 'Nama Anda tidak ditemukan di absensi kelas ini.', 'warning');
+            return;
+        }
+
+        const nis = myData.nis;
+        const res = await callAPI('getRekapTamu', 'GET', { nis: nis, kelas: currentUser.kelas });
+        
+        hideLoading();
+        if (!res) return;
+
+        document.getElementById('nama-siswa-tamu').innerText = currentUser.nama;
+        document.getElementById('kelas-siswa-tamu').innerText = 'Kelas: ' + currentUser.kelas;
+        
+        const tbody = document.getElementById('tabel-nilai-tamu');
+        tbody.innerHTML = '';
+        
+        const nilaiMasuk = res.nilaiMasuk || [];
+        const tugasKosong = res.tugasKosong || [];
+        currentTamuNilai = nilaiMasuk;
+        
+        if (nilaiMasuk.length === 0 && tugasKosong.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-6 text-center text-slate-500">Belum ada catatan nilai untuk siswa ini.</td></tr>`;
+        } else {
+          nilaiMasuk.forEach(n => {
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-800">${n.mapel}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600">${n.tugas}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-extrabold text-emerald-600">
+                  <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200">${n.nilai}</span>
+                </td>
+              </tr>`;
+          });
+          
+          tugasKosong.forEach(t => {
+            tbody.innerHTML += `
+              <tr class="bg-red-50/50 hover:bg-red-100/50 transition-colors border-l-4 border-red-500">
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-800">${t.mapel}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600">${t.tugas}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-red-600">
+                  <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[11px] font-bold inline-flex items-center gap-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i> BELUM MENGERJAKAN
+                  </span>
+                </td>
+              </tr>`;
+          });
+        }
+        
+        renderChartNilaiTamu(nilaiMasuk);
+        setView('view-hasil-tamu');
+    }
+
+    // ==========================================
+    // FUNGSI INTI GURU & ADMIN
+    // ==========================================
 
     function showLoading() { document.getElementById('loading').classList.remove('hidden'); }
     function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
 
     async function callAPI(action, method = 'GET', data = null) {
-      showLoading();
+      // Tidak trigger overlay penuh lagi kalau dari background process kecuali inisiasi
       try {
         let url = SCRIPT_URL;
         let options = { method: method };
@@ -654,8 +717,6 @@
         const response = await fetch(url, options);
         const result = await response.json();
         
-        hideLoading();
-        
         if (method === 'GET' && result.success === false) {
            Swal.fire('Error Database', result.message || 'Terjadi kesalahan sistem', 'error');
            return null;
@@ -663,7 +724,6 @@
         
         return method === 'GET' ? result.data : result;
       } catch (err) {
-        hideLoading();
         console.error("API Error:", err);
         Swal.fire('Koneksi Gagal', 'Gagal menghubungi server database. Pastikan koneksi internet aktif.', 'error');
         return null;
@@ -674,182 +734,6 @@
       document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
       document.getElementById(viewId).classList.add('active-view');
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function goHome() {
-      if (currentUser) {
-        setView('view-guru');
-        document.getElementById('panel-input').classList.add('hidden');
-      } else {
-        setView('view-landing');
-      }
-    }
-
-    function showLogin(role) {
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-      
-      if (role === 'Admin') {
-        document.getElementById('login-title').innerText = 'Login Kepala Sekolah';
-        document.getElementById('login-subtitle').innerText = 'Akses supervisi dan rekapitulasi sekolah';
-      } else {
-        document.getElementById('login-title').innerText = 'Login Guru';
-        document.getElementById('login-subtitle').innerText = 'Akses manajemen kelas dan jurnal';
-      }
-      
-      setView('view-login');
-    }
-
-    async function doLogin() {
-      const u = document.getElementById('username').value.trim();
-      const p = document.getElementById('password').value.trim();
-      if (!u || !p) return Swal.fire('Perhatian', 'Harap isi Username dan Password!', 'warning');
-
-      const res = await callAPI('login', 'POST', { username: u, password: p });
-      if (!res) return;
-
-      if (res.success) {
-        currentUser = res.user;
-        document.getElementById('nav-menu').classList.remove('hidden');
-        document.getElementById('user-info').innerText = currentUser.nama;
-        document.getElementById('role-info').innerText = currentUser.role === 'Admin' ? 'Kepala Sekolah' : 'Guru Pengajar';
-        
-        if (currentUser.role === 'Admin') {
-          document.getElementById('admin-banner').classList.remove('hidden');
-          document.getElementById('admin-supervisi-menu').classList.remove('hidden');
-          document.getElementById('menu-input-guru').classList.add('hidden'); 
-        } else {
-          document.getElementById('admin-banner').classList.add('hidden');
-          document.getElementById('admin-supervisi-menu').classList.add('hidden');
-          document.getElementById('menu-input-guru').classList.remove('hidden'); 
-        }
-
-        setView('view-guru');
-      } else {
-        Swal.fire('Gagal Login', res.message || 'Username atau Password salah!', 'error');
-      }
-    }
-
-    function logout() {
-      currentUser = null;
-      document.getElementById('nav-menu').classList.add('hidden');
-      document.getElementById('user-info').innerText = '';
-      document.getElementById('role-info').innerText = '';
-      document.getElementById('panel-input').classList.add('hidden');
-      if (document.getElementById('panel-supervisi-jurnal')) document.getElementById('panel-supervisi-jurnal').classList.add('hidden');
-      if (document.getElementById('panel-supervisi-keaktifan')) document.getElementById('panel-supervisi-keaktifan').classList.add('hidden');
-      if (document.getElementById('panel-supervisi-leger-kelas')) document.getElementById('panel-supervisi-leger-kelas').classList.add('hidden');
-      goHome();
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil Keluar',
-        text: 'Anda telah keluar dari aplikasi.',
-        timer: 1500,
-        showConfirmButton: false
-      });
-    }
-
-    function openPortalTamu() {
-      setView('view-portal-tamu');
-      document.getElementById('tamu-siswa').innerHTML = '<option value="">-- Pilih Kelas Terlebih Dahulu --</option>';
-      document.getElementById('tamu-siswa').disabled = true;
-      document.getElementById('tamu-kelas').value = '';
-    }
-
-    async function loadKelasTamu() {
-      const selKelas = document.getElementById('tamu-kelas');
-      if (!selKelas) return;
-      selKelas.innerHTML = '<option value="">-- Memuat Daftar Kelas... --</option>';
-      
-      const res = await callAPI('getKelas', 'GET');
-      if (res && res.length > 0) {
-        let html = '<option value="">-- Pilih Kelas --</option>';
-        res.forEach(k => { html += `<option value="${k}">${k}</option>`; });
-        selKelas.innerHTML = html;
-      } else {
-        selKelas.innerHTML = '<option value="">-- Belum ada data kelas --</option>';
-      }
-    }
-
-    async function loadSiswaTamu() {
-      const kelas = document.getElementById('tamu-kelas').value;
-      const selSiswa = document.getElementById('tamu-siswa');
-      
-      if (!kelas) {
-        selSiswa.innerHTML = '<option value="">-- Pilih Kelas Terlebih Dahulu --</option>';
-        selSiswa.disabled = true;
-        return;
-      }
-      
-      selSiswa.innerHTML = '<option value="">-- Memuat Daftar Siswa... --</option>';
-      selSiswa.disabled = true;
-      
-      const res = await callAPI('getSiswaTamu', 'GET', { kelas: kelas });
-      if (res && res.length > 0) {
-        let html = '<option value="">-- Pilih Nama Siswa --</option>';
-        res.forEach(s => { html += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; });
-        selSiswa.innerHTML = html;
-        selSiswa.disabled = false;
-      } else {
-        selSiswa.innerHTML = '<option value="">-- Tidak ada siswa di kelas ini --</option>';
-        selSiswa.disabled = true;
-      }
-    }
-
-    async function cekNilaiTamu() {
-      const kelas = document.getElementById('tamu-kelas').value;
-      const nis = document.getElementById('tamu-siswa').value;
-      
-      if (!kelas || !nis) {
-        return Swal.fire('Perhatian', 'Harap pilih kelas dan nama siswa terlebih dahulu!', 'warning');
-      }
-      
-      const selSiswa = document.getElementById('tamu-siswa');
-      const namaSiswa = selSiswa.options[selSiswa.selectedIndex].text.split(' - ')[1] || 'Siswa';
-      
-      const res = await callAPI('getRekapTamu', 'GET', { nis: nis, kelas: kelas });
-      if (!res) return;
-      
-      document.getElementById('nama-siswa-tamu').innerText = namaSiswa;
-      document.getElementById('kelas-siswa-tamu').innerText = 'Kelas: ' + kelas;
-      
-      const tbody = document.getElementById('tabel-nilai-tamu');
-      tbody.innerHTML = '';
-      
-      const nilaiMasuk = res.nilaiMasuk || [];
-      const tugasKosong = res.tugasKosong || [];
-      currentTamuNilai = nilaiMasuk;
-      
-      if (nilaiMasuk.length === 0 && tugasKosong.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="px-6 py-6 text-center text-slate-500">Belum ada catatan nilai untuk siswa ini.</td></tr>`;
-      } else {
-        nilaiMasuk.forEach(n => {
-          tbody.innerHTML += `
-            <tr class="hover:bg-slate-50 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-800">${n.mapel}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600">${n.tugas}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-xs font-extrabold text-emerald-600">
-                <span class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200">${n.nilai}</span>
-              </td>
-            </tr>`;
-        });
-        
-        tugasKosong.forEach(t => {
-          tbody.innerHTML += `
-            <tr class="bg-red-50/50 hover:bg-red-100/50 transition-colors border-l-4 border-red-500">
-              <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-slate-800">${t.mapel}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-600">${t.tugas}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-red-600">
-                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-[11px] font-bold inline-flex items-center gap-1">
-                  <i class="fa-solid fa-triangle-exclamation"></i> BELUM MENGERJAKAN
-                </span>
-              </td>
-            </tr>`;
-        });
-      }
-      
-      renderChartNilaiTamu(nilaiMasuk);
-      setView('view-hasil-tamu');
     }
 
     function renderChartNilaiTamu(nilaiList) {
@@ -931,9 +815,11 @@
     }
 
     async function loadKelasAndMapelGuru() {
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Menyiapkan Data Ruang Kelas...';
       const selKelas = document.getElementById('guru-kelas');
       const selMapel = document.getElementById('guru-mapel');
-      if (!selKelas || !selMapel) return;
+      if (!selKelas || !selMapel) { hideLoading(); return; }
 
       selKelas.innerHTML = '<option value="">-- Memuat Kelas... --</option>';
       selMapel.innerHTML = '<option value="">-- Pilih Kelas Terlebih Dahulu --</option>';
@@ -957,12 +843,12 @@
         uniqueKelas.forEach(k => { html += `<option value="${k}">${k}</option>`; });
         selKelas.innerHTML = html;
       } else {
-        // FALLBACK CERDAS: Jika jadwal di sheet belum ketemu/typo, tampilkan semua kelas dari Data_Siswa
         const resKelas = await callAPI('getKelas', 'GET');
         let html = '<option value="">-- Pilih Kelas (Semua Kelas) --</option>';
         (resKelas || []).forEach(k => { html += `<option value="${k}">${k}</option>`; });
         selKelas.innerHTML = html;
       }
+      hideLoading();
     }
 
     async function onGuruKelasChange() {
@@ -994,7 +880,6 @@
           uniqueMapel.forEach(m => { html += `<option value="${m}">${m}</option>`; });
           selMapel.innerHTML = html;
         } else {
-          // FALLBACK CERDAS: Jika mapel spesifik tidak terfilter, muat daftar semua mapel sekolah
           const resMapel = await callAPI('getDaftarMapel', 'GET');
           let html = '<option value="">-- Pilih Mapel (Semua Mapel) --</option>';
           (resMapel || []).forEach(m => { html += `<option value="${m}">${m}</option>`; });
@@ -1154,6 +1039,8 @@
       }
 
       if (currentGuruMode === 'input') {
+        showLoading();
+        document.getElementById('loading-text').innerText = 'Memuat Daftar Siswa...';
         const res = await callAPI('getSiswaInput', 'GET', { kelas: kelas });
         currentSiswaData = res || [];
         
@@ -1167,6 +1054,7 @@
         }
 
         renderInputTabelGuru(existingNilaiMap);
+        hideLoading();
       } else {
         loadRekapGuru();
       }
@@ -1203,8 +1091,11 @@
         }
       });
 
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Menyimpan Data...';
       let action = activeInputType === 'absen' ? 'simpanAbsensi' : 'simpanNilai';
       const res = await callAPI(action, 'POST', payload);
+      hideLoading();
       if (!res) return;
 
       if (res.success) {
@@ -1235,7 +1126,10 @@
         keterangan: ket
       };
 
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Menyimpan Jurnal...';
       const res = await callAPI('simpanJurnal', 'POST', payload);
+      hideLoading();
       if (!res) return;
 
       if (res.success) {
@@ -1292,7 +1186,10 @@
         const start = document.getElementById('rekap-absen-start').value;
         const end = document.getElementById('rekap-absen-end').value;
 
+        showLoading();
+        document.getElementById('loading-text').innerText = 'Mengunduh Rekap...';
         const res = await callAPI('getRekapAbsen', 'GET', { kelas: kelas, mapel: mapel, startDate: start, endDate: end });
+        hideLoading();
         if (!res) return;
 
         currentRekapExportData = res.siswa || [];
@@ -1327,7 +1224,10 @@
         });
 
       } else if (activeInputType === 'nilai') {
+        showLoading();
+        document.getElementById('loading-text').innerText = 'Mengunduh Rekap...';
         const res = await callAPI('getRekapNilai', 'GET', { kelas: kelas, mapel: mapel });
+        hideLoading();
         if (!res) return;
 
         const jenisList = res.jenisTugasList || [];
@@ -1450,10 +1350,13 @@
     }
 
     async function loadJurnalSupervisi() {
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Mengunduh Data...';
       const tbody = document.getElementById('tabel-supervisi-jurnal');
       tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-slate-400">Memuat jurnal mengajar...</td></tr>';
 
       const res = await callAPI('getJurnalAdmin', 'GET');
+      hideLoading();
       if (!res) return;
 
       tbody.innerHTML = '';
@@ -1475,7 +1378,10 @@
     }
 
     async function loadSupervisiKeaktifan() {
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Mengunduh Data...';
       const res = await callAPI('getRekapKeaktifanGuru', 'GET');
+      hideLoading();
       if (!res) return;
 
       const tbMengajar = document.getElementById('tabel-rekap-mengajar-guru');
@@ -1529,7 +1435,10 @@
       const thead = document.getElementById('thead-supervisi-leger');
       const tbody = document.getElementById('tbody-supervisi-leger');
 
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Mengkalkulasi Nilai Berbobot...';
       const res = await callAPI('getLegerKelasWeighted', 'GET', { kelas: kelas });
+      hideLoading();
       if (!res) return;
 
       const mapelList = res.mapelList || [];
@@ -1573,7 +1482,10 @@
     }
 
     async function downloadLegerAdmin() {
+      showLoading();
+      document.getElementById('loading-text').innerText = 'Mengunduh Master Leger...';
       const res = await callAPI('getLeger', 'GET');
+      hideLoading();
       if (!res) return;
 
       const siswa = res.siswa || [];
