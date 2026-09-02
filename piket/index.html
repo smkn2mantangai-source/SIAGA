@@ -150,7 +150,7 @@
         </div>
     </div>
 
-    <!-- App Wrapper (Hidden by default until SSO validates) -->
+    <!-- App Wrapper (Diakses setelah SSO) -->
     <div id="appWrapper" class="hidden h-full w-full flex overflow-hidden">
 
     <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
@@ -510,12 +510,14 @@
             navContainer.innerHTML = ''; viewContainer.innerHTML = '';
 
             let menus = [];
+            let viewsHTML = '';
+
             if (currentUser.role === 'SISWA') {
                 menus = [
                     { id: 'dashboardSiswa', label: 'Dashboard & Poin Saya', icon: '🏠', type: 'menu' },
                     { id: 'rekapPelanggaranSiswa', label: 'Papan Rekap Kedisiplinan', icon: '🚨', type: 'menu' }
                 ];
-                viewContainer.insertAdjacentHTML('beforeend', getViewDashboardSiswa() + getViewPelanggaranSiswa());
+                viewsHTML = getViewDashboardSiswa() + getViewPelanggaranSiswa();
             } else if (currentUser.role === 'KEPSEK' || currentUser.role === 'PENGAWAS') {
                 menus = [
                     { label: 'Executive Monitor', type: 'header' },
@@ -529,9 +531,30 @@
                     { id: 'rekapLanggar', label: 'Jurnal Sekolah', icon: '📜', type: 'menu' },
                     { id: 'trenSemester', label: 'Tren Semester', icon: '📈', type: 'menu' }
                 ];
-                viewContainer.insertAdjacentHTML('beforeend', getViewDashboardPiket() + getViewPelanggaranSiswa() + getViewRekapPemantauan() + getViewRekapGuruPiket() + getViewLogbook() + getViewRekapHadir() + getViewRekapLanggar() + getViewTrenSemester());
+                viewsHTML = getViewDashboardPiket() + getViewPelanggaranSiswa() + getViewRekapPemantauan() + getViewRekapGuruPiket() + getViewLogbook() + getViewRekapHadir() + getViewRekapLanggar() + getViewTrenSemester();
+            } else if (currentUser.role === 'ADMIN') {
+                // ADMIN: Memiliki akses operasional tugas harian dan seluruh laporan executive (termasuk Rekap KBM & Kehadiran Tim Piket)
+                menus = [
+                    { label: 'Operasional', type: 'header' },
+                    { id: 'dashboard', label: 'Dashboard Piket', icon: '🏠', type: 'menu' },
+                    { label: 'Tugas Harian', type: 'header' },
+                    { id: 'presensiPiket', label: 'Presensi Tim Piket', icon: '👨‍🏫', type: 'menu' },
+                    { id: 'inputHadir', label: 'Input Kehadiran Siswa', icon: '👨‍🎓', type: 'menu' },
+                    { id: 'pemantauan', label: 'Pantau Pembelajaran', icon: '🏫', type: 'menu' },
+                    { id: 'kejadian', label: 'Lapor Kejadian & Poin', icon: '⚠️', type: 'menu' },
+                    { label: 'Laporan & Monitoring', type: 'header' },
+                    { id: 'rekapPelanggaranSiswa', label: 'Rekap Pelanggaran Siswa', icon: '🚨', type: 'menu' },
+                    { id: 'ceklistPemantauan', label: 'Ceklist KBM (Hari Ini)', icon: '🏫', type: 'menu' },
+                    { id: 'rekapPemantauan', label: 'Rekap KBM (Total)', icon: '📋', type: 'menu' },
+                    { id: 'rekapGuruPiket', label: 'Kehadiran Tim Piket', icon: '👨‍🏫', type: 'menu' },
+                    { id: 'logbook', label: 'Logbook Harian', icon: '📔', type: 'menu' },
+                    { id: 'rekapHadir', label: 'Rekap Kehadiran Siswa', icon: '📊', type: 'menu' },
+                    { id: 'rekapLanggar', label: 'Jurnal Sekolah', icon: '📜', type: 'menu' },
+                    { id: 'trenSemester', label: 'Tren Semester', icon: '📈', type: 'menu' }
+                ];
+                viewsHTML = getViewDashboardPiket() + getViewPresensiPiket() + getViewInputHadir() + getViewPemantauan() + getViewKejadian() + getViewPelanggaranSiswa() + getViewCeklistPemantauan() + getViewRekapPemantauan() + getViewRekapGuruPiket() + getViewLogbook() + getViewRekapHadir() + getViewRekapLanggar() + getViewTrenSemester();
             } else {
-                // ADMIN & GURU PIKET
+                // GURU / GURU PIKET: Tugas operasional harian; Rekap KBM (Total) dan Kehadiran Tim Piket disembunyikan
                 menus = [
                     { label: 'Operasional', type: 'header' },
                     { id: 'dashboard', label: 'Dashboard Piket', icon: '🏠', type: 'menu' },
@@ -545,13 +568,13 @@
                     { id: 'ceklistPemantauan', label: 'Ceklist KBM (Hari Ini)', icon: '🏫', type: 'menu' },
                     { id: 'logbook', label: 'Logbook Harian', icon: '📔', type: 'menu' },
                     { id: 'rekapHadir', label: 'Rekap Kehadiran Siswa', icon: '📊', type: 'menu' },
-                    { id: 'rekapPemantauan', label: 'Rekap KBM (Total)', icon: '📋', type: 'menu' },
-                    { id: 'rekapGuruPiket', label: 'Kehadiran Tim Piket', icon: '👨‍🏫', type: 'menu' },
                     { id: 'rekapLanggar', label: 'Jurnal Sekolah', icon: '📜', type: 'menu' },
                     { id: 'trenSemester', label: 'Tren Semester', icon: '📈', type: 'menu' }
                 ];
-                viewContainer.insertAdjacentHTML('beforeend', getViewDashboardPiket() + getViewPresensiPiket() + getViewInputHadir() + getViewPemantauan() + getViewKejadian() + getViewPelanggaranSiswa() + getViewCeklistPemantauan() + getViewRekapPemantauan() + getViewLogbook() + getViewRekapHadir() + getViewRekapGuruPiket() + getViewRekapLanggar() + getViewTrenSemester());
+                viewsHTML = getViewDashboardPiket() + getViewPresensiPiket() + getViewInputHadir() + getViewPemantauan() + getViewKejadian() + getViewPelanggaranSiswa() + getViewCeklistPemantauan() + getViewLogbook() + getViewRekapHadir() + getViewRekapLanggar() + getViewTrenSemester();
             }
+
+            viewContainer.insertAdjacentHTML('beforeend', viewsHTML);
 
             menus.forEach(m => {
                 if (m.type === 'header') {
@@ -1011,6 +1034,10 @@
             });
         }
 
+        // =========================================================================
+        // REKAPITULASI PELANGGARAN & POIN SISWA (TABEL & DRILL-DOWN MODAL)
+        // =========================================================================
+
         function parseStudentFromDesc(deskripsi) {
             // Format umum: "Siswa: NAMA SISWA (KELAS) - ..."
             if (!deskripsi) return { nama: 'Anonim', kelas: '-' };
@@ -1224,6 +1251,10 @@
             document.getElementById('detailSiswaModal').classList.add('hidden');
         }
 
+        // =========================================================================
+        // VIEW: DASHBOARD SISWA & SARAN EDUKATIF
+        // =========================================================================
+
         function renderStudentDashboard() {
             if(!globalData.kehadiran) return;
             const today = new Date(), currentMonth = String(today.getMonth() + 1).padStart(2, '0');
@@ -1383,6 +1414,415 @@
             
             const persen = (((counts.H + counts.T) / counts.total) * 100).toFixed(1);
             tbody.innerHTML = `<tr class="bg-white text-base sm:text-lg"><td class="p-4 border-r border-slate-100 text-green-600 font-extrabold">${counts.H}</td><td class="p-4 border-r border-slate-100 text-yellow-600 font-extrabold">${counts.S}</td><td class="p-4 border-r border-slate-100 text-blue-600 font-extrabold">${counts.I}</td><td class="p-4 border-r border-slate-100 text-red-600 font-extrabold">${counts.A}</td><td class="p-4 border-r border-slate-100 text-orange-600 font-extrabold">${counts.T}</td><td class="p-4 font-bold text-slate-700">${counts.total}</td><td class="p-4 font-black bg-indigo-50 text-indigo-700">${persen}%</td></tr>`;
+        }
+
+        // =========================================================================
+        // FUNGSI LAINNYA
+        // =========================================================================
+
+        function renderCeklistPemantauan() {
+            if(!globalData.pemantauan) return;
+            const container = document.getElementById('ceklistMatrixContainer');
+            if(!container) return;
+
+            const tgl = document.getElementById('ceklistTanggal').value;
+            const dataHariIni = globalData.pemantauan.filter(d => d.tanggal === tgl);
+
+            let tableHTML = `<table class="w-full text-center whitespace-nowrap border-collapse">
+                <thead><tr class="bg-indigo-50 text-indigo-800 text-xs font-extrabold uppercase tracking-wider">
+                    <th class="p-3 border border-indigo-100 sticky-col bg-indigo-50 z-20">Jam Ke-</th>`;
+            
+            FIXED_CLASSES.forEach(c => {
+                tableHTML += `<th class="p-3 border border-indigo-100">${c}</th>`;
+            });
+            tableHTML += `</tr></thead><tbody class="text-sm font-bold text-slate-600">`;
+
+            for (let jam = 1; jam <= 12; jam++) {
+                tableHTML += `<tr class="hover:bg-slate-50 transition-colors"><td class="p-3 border border-slate-200 sticky-col bg-white text-indigo-700">Jam ${jam}</td>`;
+                FIXED_CLASSES.forEach(kelas => {
+                    const match = dataHariIni.find(d => d.kelas === kelas && d.jam.toString().includes(jam.toString()));
+                    let content = '<span class="text-slate-300 font-medium">-</span>';
+                    
+                    if (match) {
+                        if (match.status === 'Pembelajaran berlangsung dengan guru') {
+                            content = '<div class="mx-auto w-10 py-1 bg-green-500 text-white rounded text-xs">H</div>';
+                        } else {
+                            if (match.adaTugas && match.adaTugas.toLowerCase().includes('tidak')) {
+                                content = '<div class="mx-auto w-10 py-1 bg-red-500 text-white rounded text-xs">TH</div>';
+                            } else {
+                                content = '<div class="mx-auto w-10 py-1 bg-yellow-500 text-white rounded text-xs">TGS</div>';
+                            }
+                        }
+                    }
+                    tableHTML += `<td class="p-2 border border-slate-200">${content}</td>`;
+                });
+                tableHTML += `</tr>`;
+            }
+            tableHTML += `</tbody></table>`;
+            container.innerHTML = tableHTML;
+        }
+
+        function fetchLogbook() {
+            const tgl = document.getElementById('logbookDate').value;
+            const content = document.getElementById('logbookContent');
+            content.innerHTML = '<div class="text-center py-12 text-slate-400 font-medium">Sedang menyusun logbook...</div>';
+            apiCall('getLogbook', {tanggal: tgl}).then(r => {
+                if(r && r.success) {
+                    const p = r.data.pemantauan, k = r.data.kejadian, g = r.data.guruPiket || [];
+                    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+                    content.innerHTML = `
+                        <div class="text-center mb-10 border-b-2 border-slate-800 pb-6">
+                            <h1 class="text-3xl font-extrabold uppercase tracking-widest text-slate-800">Logbook Harian Guru Piket</h1>
+                            <p class="text-slate-600 font-bold mt-2 text-lg">${new Date(tgl).toLocaleDateString('id-ID', opts)}</p>
+                        </div>
+                        <div class="mb-8">
+                            <h3 class="font-extrabold text-slate-800 mb-4 bg-slate-100 p-3 rounded-xl border border-slate-200">👨‍🏫 KEHADIRAN TIM GURU PIKET</h3>
+                            ${g.length===0 ? '<p class="text-sm italic text-slate-500 pl-2">Belum ada presensi piket yang dicatat untuk hari ini.</p>' : `
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    ${g.map(x=>`
+                                        <div class="p-3 border border-slate-200 rounded-xl bg-slate-50 flex flex-col justify-center">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="font-bold text-slate-800 text-xs">${x.nama}</span>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${x.status==='HADIR'?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${x.status}</span>
+                                            </div>
+                                            <span class="text-[10px] text-slate-500 font-medium">Ket: ${x.keterangan}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `}
+                        </div>
+                        <div class="mb-8"><h3 class="font-extrabold text-slate-800 mb-4 bg-slate-100 p-3 rounded-xl border border-slate-200">🏫 PEMANTAUAN PEMBELAJARAN</h3>
+                            ${p.length===0 ? '<p class="text-sm italic text-slate-500 pl-2">Tidak ada catatan pemantauan hari ini.</p>' : `<div class="overflow-x-auto rounded-xl border border-slate-200"><table class="w-full text-sm border-collapse"><tr class="bg-slate-50 text-left"><th class="p-3 border-b">Kelas</th><th class="p-3 border-b">Jam</th><th class="p-3 border-b">Mapel</th><th class="p-3 border-b">Guru</th><th class="p-3 border-b">Status</th><th class="p-3 border-b">Tugas</th><th class="p-3 border-b">Penginput</th></tr>${p.map(x=>`<tr class="hover:bg-slate-50"><td class="p-3 border-b font-medium">${x.kelas}</td><td class="p-3 border-b">${x.jam}</td><td class="p-3 border-b">${x.mapel}</td><td class="p-3 border-b">${x.guru}</td><td class="p-3 border-b font-semibold ${x.status==='Pembelajaran berlangsung dengan guru'?'text-green-600':'text-red-600'}">${x.status}</td><td class="p-3 border-b">${x.tugas}</td><td class="p-3 border-b text-xs font-bold text-slate-500">${x.piket}</td></tr>`).join('')}</table></div>`}
+                        </div>
+                        <div class="mb-8"><h3 class="font-extrabold text-slate-800 mb-4 bg-slate-100 p-3 rounded-xl border border-slate-200">⚠️ LAPORAN KEJADIAN & PELANGGARAN</h3>
+                            ${k.length===0 ? '<p class="text-sm italic text-slate-500 pl-2">Tidak ada laporan kejadian hari ini.</p>' : `<ul class="space-y-4">${k.map(x=>`<li class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm"><div class="flex items-center gap-2 mb-2"><span class="px-2 py-1 bg-orange-100 text-orange-800 text-xs font-bold rounded">${x.kategori}</span><span class="font-bold text-slate-800">${x.sub}</span> ${x.poin ? `<span class="px-2 py-0.5 bg-red-100 text-red-700 font-extrabold text-xs rounded">${x.poin} Poin</span>` : ''} ${x.dokumentasi ? `<button onclick="openDocPreviewModal('${x.dokumentasi}', '${x.sub}')" class="text-xs text-blue-600 underline font-bold">Preview Foto</button>` : ''}</div><div class="text-sm text-slate-600 mb-2">${x.deskripsi}</div><div class="text-xs bg-slate-50 p-2 rounded border border-slate-100 mb-2"><span class="font-bold text-slate-700">Tindak Lanjut / Sanksi:</span> ${x.tindakLanjut}</div><p class="text-xs text-slate-400 font-medium">Dilaporkan oleh: <span class="font-bold text-slate-600">${x.piket}</span></p></li>`).join('')}</ul>`}
+                        </div>
+                        <div class="mt-20 flex justify-between px-10 text-sm text-center">
+                            <div><p class="mb-20 font-medium text-slate-600">Mengetahui,<br><span class="font-bold text-slate-800">Kepala Sekolah</span></p><p class="font-extrabold border-b-2 border-slate-800 inline-block w-48"></p></div>
+                            <div><p class="mb-20 font-medium text-slate-600">Mantangai, ${new Date().toLocaleDateString('id-ID')}<br><span class="font-bold text-slate-800">Petugas Logbook</span></p><p class="font-extrabold border-b-2 border-slate-800 inline-block w-48 text-indigo-600">${currentUser.nama}</p></div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function applyPemantauanFilters() {
+            if(!globalData.pemantauan) return;
+            const fKelas = document.getElementById('filterPemantauanKelas').value;
+            const fStatus = document.getElementById('filterPemantauanStatus').value;
+            const fBulan = document.getElementById('filterPemantauanBulan').value;
+            const fMulai = document.getElementById('filterPemantauanMulai') ? document.getElementById('filterPemantauanMulai').value : '';
+            const fAkhir = document.getElementById('filterPemantauanAkhir') ? document.getElementById('filterPemantauanAkhir').value : '';
+            const fSearch = document.getElementById('filterPemantauanSearch').value.toLowerCase();
+
+            pemantauanFilteredData = globalData.pemantauan;
+            if (fKelas) pemantauanFilteredData = pemantauanFilteredData.filter(d => d.kelas === fKelas);
+            if (fStatus) pemantauanFilteredData = pemantauanFilteredData.filter(d => d.status === fStatus);
+            if (fBulan) pemantauanFilteredData = pemantauanFilteredData.filter(d => d.tanggal && d.tanggal.split('-')[1] === fBulan);
+            if (fMulai) pemantauanFilteredData = pemantauanFilteredData.filter(d => d.tanggal && new Date(d.tanggal) >= new Date(fMulai));
+            if (fAkhir) pemantauanFilteredData = pemantauanFilteredData.filter(d => d.tanggal && new Date(d.tanggal) <= new Date(fAkhir));
+            if (fSearch) pemantauanFilteredData = pemantauanFilteredData.filter(d => (d.guru && d.guru.toLowerCase().includes(fSearch)) || (d.mapel && d.mapel.toLowerCase().includes(fSearch)));
+
+            let totalPantau = pemantauanFilteredData.length;
+            let normalCount = 0, belumCount = 0, kosongCount = 0;
+
+            pemantauanFilteredData.forEach(d => {
+                if (d.status === 'Pembelajaran berlangsung dengan guru') normalCount++;
+                else if (d.status === 'Guru belum / tidak berada di kelas') belumCount++;
+                else if (d.status === 'Guru tidak hadir') kosongCount++;
+            });
+
+            if(document.getElementById('kpiPantauTotal')) document.getElementById('kpiPantauTotal').innerText = totalPantau;
+            if(document.getElementById('kpiPantauNormal')) document.getElementById('kpiPantauNormal').innerText = normalCount;
+            if(document.getElementById('kpiPantauBelum')) document.getElementById('kpiPantauBelum').innerText = belumCount;
+            if(document.getElementById('kpiPantauKosong')) document.getElementById('kpiPantauKosong').innerText = kosongCount;
+
+            const tbody = document.getElementById('tablePemantauanBody');
+            if(!tbody) return;
+            tbody.innerHTML = pemantauanFilteredData.length === 0 ? `<tr><td colspan="8" class="p-8 text-center text-slate-500 font-medium bg-slate-50">Tidak ada riwayat pemantauan sesuai filter.</td></tr>`
+                : pemantauanFilteredData.map((row, idx) => {
+                    let badgeStat = row.status === 'Pembelajaran berlangsung dengan guru' 
+                        ? '<span class="px-3 py-1 bg-green-100 text-green-800 rounded-lg font-bold text-xs">🟢 H (Ada Guru)</span>'
+                        : (row.status === 'Guru belum / tidak berada di kelas' 
+                            ? '<span class="px-3 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold text-xs">🟡 Belum Masuk</span>'
+                            : (row.adaTugas === 'Ada Tugas' 
+                                ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg font-bold text-xs">🟡 TGS (Ada Tugas)</span>' 
+                                : '<span class="px-3 py-1 bg-red-100 text-red-800 rounded-lg font-bold text-xs">🔴 TH (Kosong)</span>'));
+                    return `
+                        <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+                            <td class="p-3 text-center text-slate-400 font-medium">${idx + 1}</td>
+                            <td class="p-3 font-semibold text-slate-700 whitespace-nowrap">${row.tanggal}</td>
+                            <td class="p-3 font-bold text-indigo-600">${row.kelas} (Jam ${row.jam})</td>
+                            <td class="p-3 font-bold text-slate-800">${row.mapel}</td>
+                            <td class="p-3 font-medium text-slate-700">${row.guru}</td>
+                            <td class="p-3">${badgeStat}</td>
+                            <td class="p-3 text-xs text-slate-500 font-medium">${row.adaTugas}</td>
+                            <td class="p-3 text-xs font-bold text-slate-400">${row.piket}</td>
+                        </tr>`;
+                }).join('');
+        }
+
+        function applyRekapGuruPiketFilters() {
+            if(!globalData.kehadiranPiket) return;
+            const container = document.getElementById('guruPiketDataContainer');
+            if(!container) return;
+
+            let filteredData = globalData.kehadiranPiket;
+
+            const fBulan = document.getElementById('filterPiketBulan') ? document.getElementById('filterPiketBulan').value : '';
+            const fMulai = document.getElementById('filterPiketMulai') ? document.getElementById('filterPiketMulai').value : '';
+            const fAkhir = document.getElementById('filterPiketAkhir') ? document.getElementById('filterPiketAkhir').value : '';
+            const fNama = document.getElementById('filterPiketNama') ? document.getElementById('filterPiketNama').value.toLowerCase() : '';
+
+            if (fBulan) filteredData = filteredData.filter(d => d.tanggal && d.tanggal.split('-')[1] === fBulan);
+            if (fMulai) filteredData = filteredData.filter(d => d.tanggal && new Date(d.tanggal) >= new Date(fMulai));
+            if (fAkhir) filteredData = filteredData.filter(d => d.tanggal && new Date(d.tanggal) <= new Date(fAkhir));
+            if (fNama) filteredData = filteredData.filter(d => d.nama && d.nama.toLowerCase().includes(fNama));
+
+            let total = filteredData.length;
+            let hadir = 0;
+            let absen = 0;
+            const pivot = {};
+
+            filteredData.forEach(d => {
+                if (!pivot[d.nama]) pivot[d.nama] = { nama: d.nama, H:0, S:0, I:0, A:0, total:0 };
+                const stat = d.status ? d.status.toUpperCase() : '';
+                
+                if (stat === 'HADIR') { hadir++; pivot[d.nama].H++; }
+                else { 
+                    absen++; 
+                    if(stat === 'SAKIT') pivot[d.nama].S++; 
+                    else if(stat === 'IZIN') pivot[d.nama].I++; 
+                    else pivot[d.nama].A++; 
+                }
+                pivot[d.nama].total++;
+            });
+
+            if(document.getElementById('kpiPiketTotal')) document.getElementById('kpiPiketTotal').innerText = total;
+            if(document.getElementById('kpiPiketHadir')) document.getElementById('kpiPiketHadir').innerText = hadir;
+            if(document.getElementById('kpiPiketAbsen')) document.getElementById('kpiPiketAbsen').innerText = absen;
+
+            if (filteredData.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center p-10 bg-slate-50 rounded-2xl border border-slate-200"><p class="text-slate-500 font-medium">Tidak ada riwayat presensi tim piket sesuai filter.</p></div>';
+                return;
+            }
+            
+            const pivotArray = Object.values(pivot).sort((a,b) => b.total - a.total);
+
+            container.innerHTML = `
+                <div class="col-span-full table-container rounded-2xl border border-slate-200 shadow-sm mb-8">
+                    <table id="tableRekapGuruPiket" class="w-full text-left whitespace-nowrap">
+                        <thead>
+                            <tr class="bg-purple-50 text-purple-800 text-sm border-b border-purple-100">
+                                <th class="p-4 font-extrabold sticky-col bg-purple-50">Nama Guru Piket</th>
+                                <th class="p-4 text-center font-extrabold border-l border-purple-100">Hadir (H)</th>
+                                <th class="p-4 text-center font-extrabold border-l border-purple-100">Sakit (S)</th>
+                                <th class="p-4 text-center font-extrabold border-l border-purple-100">Izin (I)</th>
+                                <th class="p-4 text-center font-extrabold border-l border-purple-100">Alpa (A)</th>
+                                <th class="p-4 text-center font-extrabold border-l border-purple-100">% Hadir</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            ${pivotArray.map(c => {
+                                const persen = c.total > 0 ? (c.H / c.total) * 100 : 0;
+                                return `
+                                <tr class="hover:bg-purple-50/50 border-b border-slate-100 transition-colors">
+                                    <td class="p-3 font-bold text-slate-700 sticky-col bg-white">${c.nama}</td>
+                                    <td class="p-3 text-center text-green-700 font-extrabold border-l border-slate-100 bg-green-50/30">${c.H}</td>
+                                    <td class="p-3 text-center text-yellow-700 font-extrabold border-l border-slate-100">${c.S}</td>
+                                    <td class="p-3 text-center text-blue-700 font-extrabold border-l border-slate-100">${c.I}</td>
+                                    <td class="p-3 text-center text-red-700 font-extrabold border-l border-slate-100 bg-red-50/30">${c.A}</td>
+                                    <td class="p-3 text-center font-extrabold border-l border-slate-100 ${persen>=80?'text-green-600':persen>=50?'text-yellow-600':'text-red-600'}">${persen.toFixed(1)}%</td>
+                                </tr>`
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-span-full"><h3 class="text-lg font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2">Rincian Log Kehadiran</h3></div>
+                ${filteredData.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).map(row => `
+                    <div class="p-4 bg-white border border-slate-200 rounded-2xl flex items-center justify-between hover:shadow-sm transition-shadow mb-3">
+                        <div>
+                            <p class="font-bold text-slate-800 text-sm">${row.nama}</p>
+                            <p class="text-xs text-slate-400 mt-0.5">📅 ${row.tanggal} &bull; Ket: <span class="font-semibold text-slate-700">${row.keterangan || '-'}</span> &bull; Penginput: ${row.penginput}</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-black rounded-lg ${row.status==='HADIR'?'bg-green-100 text-green-800':(row.status==='IZIN'?'bg-blue-100 text-blue-800':(row.status==='SAKIT'?'bg-yellow-100 text-yellow-800':'bg-red-100 text-red-800'))}">${row.status}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function applyHadirFilters() {
+            if(!globalData.kehadiran) return;
+            const fKelas = document.getElementById('filterHadirKelas').value;
+            const fBulan = document.getElementById('filterHadirBulan').value;
+            const fMulai = document.getElementById('filterHadirMulai').value;
+            const fAkhir = document.getElementById('filterHadirAkhir').value;
+
+            let tempData = globalData.kehadiran;
+            if (fKelas) tempData = tempData.filter(d => d.kelas === fKelas);
+            if (fBulan) tempData = tempData.filter(d => d.tanggal && d.tanggal.split('-')[1] === fBulan);
+            if (fMulai) tempData = tempData.filter(d => d.tanggal && new Date(d.tanggal) >= new Date(fMulai));
+            if (fAkhir) tempData = tempData.filter(d => d.tanggal && new Date(d.tanggal) <= new Date(fAkhir));
+
+            const pivot = {};
+            tempData.forEach(row => {
+                if (!pivot[row.nama]) pivot[row.nama] = { nama: row.nama, kelas: row.kelas, H:0, S:0, I:0, A:0, T:0, total:0 };
+                const stat = row.status ? row.status.toUpperCase() : '';
+                if (['H', 'S', 'I', 'A', 'T'].includes(stat)) { pivot[row.nama][stat]++; pivot[row.nama].total++; }
+            });
+
+            hadirFilteredData = Object.values(pivot).map(d => { d.persen = d.total > 0 ? ((d.H + d.T) / d.total) * 100 : 0; return d; });
+            executeSortHadir();
+        }
+
+        function sortHadir(col) { sortAscHadir = (sortColHadir === col) ? !sortAscHadir : true; sortColHadir = col; executeSortHadir(); }
+        
+        function executeSortHadir() {
+            document.querySelectorAll('#tableRekapHadir .sort-icon').forEach(icon => icon.innerHTML = '');
+            const activeIcon = document.getElementById(`sort-icon-${sortColHadir}`);
+            if (activeIcon) activeIcon.innerHTML = sortAscHadir ? '▲' : '▼';
+
+            hadirFilteredData.sort((a, b) => {
+                let valA = a[sortColHadir], valB = b[sortColHadir];
+                if (typeof valA === 'string') return sortAscHadir ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                return sortAscHadir ? valA - valB : valB - valA;
+            });
+            
+            const tbody = document.getElementById('rekapHadirBody');
+            if(!tbody) return;
+            tbody.innerHTML = hadirFilteredData.length === 0 ? '<tr><td colspan="8" class="p-8 text-center text-slate-500 font-medium bg-slate-50">Tidak ada data kehadiran yang cocok.</td></tr>' 
+                : hadirFilteredData.map(c => `
+                    <tr class="hover:bg-indigo-50 border-b border-slate-100 transition-colors">
+                        <td class="p-3 font-bold text-slate-700 sticky-col bg-white">${c.nama}</td>
+                        <td class="p-3 border-l border-slate-100"><span class="bg-slate-100 px-3 py-1 rounded-lg text-xs font-semibold text-slate-600">${c.kelas}</span></td>
+                        <td class="p-3 text-center text-green-700 font-extrabold border-l border-slate-100 bg-green-50/30">${c.H}</td>
+                        <td class="p-3 text-center text-yellow-700 font-extrabold border-l border-slate-100">${c.S}</td>
+                        <td class="p-3 text-center text-blue-700 font-extrabold border-l border-slate-100">${c.I}</td>
+                        <td class="p-3 text-center text-red-700 font-extrabold border-l border-slate-100 bg-red-50/30">${c.A}</td>
+                        <td class="p-3 text-center text-orange-700 font-extrabold border-l border-slate-100">${c.T}</td>
+                        <td class="p-3 text-center font-extrabold border-l border-slate-100 ${c.persen>=80?'text-green-600':c.persen>=60?'text-yellow-600':'text-red-600'}">${c.persen.toFixed(1)}%</td>
+                    </tr>`).join('');
+        }
+
+        function applyLanggarFilters() {
+            if(!globalData.kejadian) return;
+            const fKelas = document.getElementById('filterLanggarKelas') ? document.getElementById('filterLanggarKelas').value.toLowerCase() : '';
+            const fKategori = document.getElementById('filterLanggarKategori') ? document.getElementById('filterLanggarKategori').value : '';
+            const fBulan = document.getElementById('filterLanggarBulan') ? document.getElementById('filterLanggarBulan').value : '';
+
+            langgarFilteredData = globalData.kejadian;
+            if (currentUser.role === 'SISWA') {
+                langgarFilteredData = langgarFilteredData.filter(d => d.deskripsi && d.deskripsi.includes(currentUser.nama));
+            } else {
+                if (fKelas) langgarFilteredData = langgarFilteredData.filter(d => (d.deskripsi && d.deskripsi.toLowerCase().includes(fKelas)) || (d.sub && d.sub.toLowerCase().includes(fKelas))); 
+            }
+            if (fKategori) langgarFilteredData = langgarFilteredData.filter(d => d.kategori === fKategori);
+            if (fBulan) langgarFilteredData = langgarFilteredData.filter(d => d.tanggal && d.tanggal.split('-')[1] === fBulan);
+
+            const container = document.getElementById('langgarDataContainer');
+            if(!container) return;
+            if (langgarFilteredData.length === 0) {
+                container.innerHTML = '<div class="col-span-full text-center p-10 bg-green-50 rounded-2xl border border-green-200"><h3 class="text-green-800 font-extrabold text-xl">🎉 Bersih!</h3><p class="text-green-700 mt-2 font-medium">Tidak ada catatan kejadian sesuai filter.</p></div>';
+                return;
+            }
+
+            container.innerHTML = langgarFilteredData.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).map(row => {
+                let badgeColor = row.kategori === 'Siswa' ? 'bg-red-100 text-red-800' : (row.kategori === 'Guru' ? 'bg-orange-100 text-orange-800' : 'bg-yellow-100 text-yellow-800');
+                let linkDoc = row.dokumentasi ? `<button onclick="openDocPreviewModal('${row.dokumentasi}', '${row.sub}')" class="text-indigo-600 underline text-xs font-bold mt-2 inline-block">Preview Dokumentasi</button>` : '';
+                return `
+                    <div class="border border-slate-200 rounded-2xl p-5 hover:shadow-lg transition-shadow bg-white relative overflow-hidden break-inside-avoid">
+                        <div class="absolute top-0 left-0 w-2 h-full ${badgeColor.split(' ')[0]}"></div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start mb-4 pl-3">
+                            <div><h4 class="font-extrabold text-slate-800 text-lg">${row.sub}</h4><p class="text-xs font-semibold text-slate-500 mt-1">📅 ${row.tanggal} &bull; Penginput: ${row.piket}</p></div>
+                            <div class="flex items-center gap-2">
+                                ${row.poin ? `<span class="px-2.5 py-1 text-xs font-black rounded-lg bg-red-100 text-red-700">${row.poin} Poin</span>` : ''}
+                                <span class="px-3 py-1 text-xs font-extrabold rounded-lg ${badgeColor} mt-3 sm:mt-0">${row.kategori}</span>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-4 text-sm pl-5 ml-2 border border-slate-100">
+                            <p class="mb-2 text-slate-700 leading-relaxed whitespace-pre-line"><span class="font-bold text-slate-800 block mb-1">📝 Detail:</span> ${row.deskripsi}</p>
+                            <p class="text-slate-700"><span class="font-bold text-slate-800 block mb-1">✅ Tindak Lanjut:</span> <span class="text-indigo-600 font-semibold">${row.tindakLanjut}</span></p>
+                            ${linkDoc}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderTrenSemester() {
+            if(!document.getElementById('view-trenSemester') || !globalData.kehadiran) return;
+            const semester = document.getElementById('filterTrenSemester').value; 
+            const fKelas = document.getElementById('filterTrenKelas').value;
+            
+            currentMonthsInfo = semester === 'GANJIL' 
+                ? [ {m:'07', name:'Jul'}, {m:'08', name:'Agu'}, {m:'09', name:'Sep'}, {m:'10', name:'Okt'}, {m:'11', name:'Nov'}, {m:'12', name:'Des'} ]
+                : [ {m:'01', name:'Jan'}, {m:'02', name:'Feb'}, {m:'03', name:'Mar'}, {m:'04', name:'Apr'}, {m:'05', name:'Mei'}, {m:'06', name:'Jun'} ];
+
+            let tempData = globalData.kehadiran;
+            if (fKelas) tempData = tempData.filter(d => d.kelas === fKelas);
+
+            const pivot = {};
+            tempData.forEach(row => {
+                if(!row.tanggal) return;
+                const month = row.tanggal.split('-')[1]; 
+                if(!currentMonthsInfo.find(mo => mo.m === month)) return;
+                if (!pivot[row.nama]) {
+                    pivot[row.nama] = { nama: row.nama, kelas: row.kelas, months: {} };
+                    currentMonthsInfo.forEach(mo => pivot[row.nama].months[mo.m] = { H:0, total:0 });
+                }
+                const stat = row.status ? row.status.toUpperCase() : '';
+                if (['H', 'S', 'I', 'A', 'T'].includes(stat)) {
+                    pivot[row.nama].months[month].total++;
+                    if(['H', 'T'].includes(stat)) pivot[row.nama].months[month].H++; 
+                }
+            });
+
+            trenSemesterData = Object.values(pivot).map(student => {
+                let totalPersenAllMonths = 0, activeMonthsCount = 0;
+                student.monthsPersen = {};
+                currentMonthsInfo.forEach(mo => {
+                    const dataMo = student.months[mo.m];
+                    if (dataMo.total > 0) {
+                        const persen = (dataMo.H / dataMo.total) * 100;
+                        student.monthsPersen[mo.m] = persen; totalPersenAllMonths += persen; activeMonthsCount++;
+                    } else { student.monthsPersen[mo.m] = -1; }
+                });
+                student.avg = activeMonthsCount > 0 ? (totalPersenAllMonths / activeMonthsCount) : -1;
+                return student;
+            });
+            executeSortTren(); 
+        }
+
+        function sortTren(col) { sortAscTren = (sortColTren === col) ? !sortAscTren : true; sortColTren = col; executeSortTren(); }
+
+        function executeSortTren() {
+            const trHeader = document.getElementById('trenHeaderRow');
+            if(!trHeader) return;
+            let headerHTML = `<th class="p-3 font-bold cursor-pointer hover:bg-indigo-100 transition-colors" onclick="sortTren('nama')">Nama Siswa <span class="sort-icon">${sortColTren === 'nama' ? (sortAscTren ? '▲' : '▼') : ''}</span></th>
+                              <th class="p-3 font-bold text-center border-l border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-colors" onclick="sortTren('kelas')">Kelas <span class="sort-icon">${sortColTren === 'kelas' ? (sortAscTren ? '▲' : '▼') : ''}</span></th>`;
+            
+            currentMonthsInfo.forEach(mo => {
+                headerHTML += `<th class="p-3 font-bold text-center border-l border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-colors" onclick="sortTren('${mo.m}')">${mo.name} <span class="sort-icon">${sortColTren === mo.m ? (sortAscTren ? '▲' : '▼') : ''}</span></th>`;
+            });
+            headerHTML += `<th class="p-3 font-bold text-center bg-indigo-200 border-l border-indigo-300 cursor-pointer hover:bg-indigo-300 transition-colors" onclick="sortTren('avg')">Rata-rata <span class="sort-icon">${sortColTren === 'avg' ? (sortAscTren ? '▲' : '▼') : ''}</span></th>`;
+            trHeader.innerHTML = headerHTML;
+
+            trenSemesterData.sort((a, b) => {
+                let valA = a[sortColTren], valB = b[sortColTren];
+                if (sortColTren !== 'nama' && sortColTren !== 'kelas' && sortColTren !== 'avg') { valA = a.monthsPersen[sortColTren]; valB = b.monthsPersen[sortColTren]; }
+                if (typeof valA === 'string') return sortAscTren ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                return sortAscTren ? valA - valB : valB - valA;
+            });
+
+            const tbody = document.getElementById('trenBody');
+            tbody.innerHTML = trenSemesterData.length === 0 ? `<tr><td colspan="${currentMonthsInfo.length + 3}" class="p-8 text-center text-slate-500 font-medium">Belum ada data untuk semester ini.</td></tr>` : trenSemesterData.map(student => {
+                let rowHTML = `<tr class="hover:bg-indigo-50/50 border-b border-slate-100 transition-colors"><td class="p-3 font-bold text-slate-700 bg-white sticky-col">${student.nama}</td><td class="p-3 text-center border-l border-slate-100"><span class="bg-slate-100 px-3 py-1 rounded-lg text-xs font-semibold">${student.kelas}</span></td>`;
+                currentMonthsInfo.forEach(mo => {
+                    const persen = student.monthsPersen[mo.m];
+                    rowHTML += persen !== -1 ? `<td class="p-3 text-center font-extrabold border-l border-slate-100 ${persen>=80?'text-green-600':persen>=60?'text-yellow-600':'text-red-600'}">${persen.toFixed(1)}%</td>` : `<td class="p-3 text-center text-slate-300 border-l border-slate-100 font-medium">-</td>`;
+                });
+                rowHTML += student.avg !== -1 ? `<td class="p-3 text-center font-extrabold bg-indigo-50 border-l border-indigo-100 ${student.avg>=80?'text-indigo-700':student.avg>=60?'text-yellow-700':'text-red-700'}">${student.avg.toFixed(1)}%</td></tr>` : `<td class="p-3 text-center text-slate-400 bg-indigo-50 border-l border-indigo-100">-</td></tr>`;
+                return rowHTML;
+            }).join('');
         }
 
         function printView(title) {
