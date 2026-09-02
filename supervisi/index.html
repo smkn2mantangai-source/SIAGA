@@ -27,10 +27,6 @@
     .score-pill label { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; font-weight: 800; font-size: 13px; color: #64748b; background: #f1f5f9; cursor: pointer; transition: all 0.2s; }
     .score-pill input[type="radio"]:checked + label { background: #4f46e5; color: white; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 
-    /* =========================================
-       SIDEBAR COLLAPSE - DESKTOP (ICON ONLY)
-       Normal: 288px (18rem) | Minimize: 80px (5rem)
-    ========================================= */
     @media (min-width: 768px) {
       /* Sidebar Normal */
       #sidebar {
@@ -148,9 +144,6 @@
       }
     }
 
-    /* =========================================
-       PRINT LAPORAN SUPERVISI MULTI-HALAMAN
-    ========================================= */
     @page {
       size: A4 portrait;
       margin: 12mm;
@@ -264,7 +257,14 @@
 
   <div id="toast-container" class="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- MODAL UPLOAD DOKUMEN -->
+  <div id="loading-sso" class="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
+    <div class="text-center">
+      <i class="fa-solid fa-circle-notch fa-spin text-5xl text-indigo-600 mb-4"></i>
+      <h2 class="text-xl font-bold text-slate-800">Memverifikasi Akses...</h2>
+      <p class="text-slate-500 text-sm mt-2">Menghubungkan ke Portal SIAGA</p>
+    </div>
+  </div>
+
   <div id="modal-upload" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2rem] p-6 md:p-8 shadow-2xl relative overflow-hidden">
       <div id="upload-overlay" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
@@ -315,7 +315,6 @@
     </div>
   </div>
 
-  <!-- MODAL JADWAL SUPERVISI -->
   <div id="modal-jadwal" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-[2rem] p-6 md:p-8 shadow-2xl">
       <div class="flex justify-between items-center mb-6">
@@ -350,7 +349,6 @@
     </div>
   </div>
 
-  <!-- MODAL LAPORAN SUPERVISI -->
   <div id="modal-laporan" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9999] flex items-start justify-center p-2 md:p-6 overflow-y-auto">
     <div class="bg-white w-full max-w-4xl rounded-3xl p-6 md:p-10 shadow-2xl relative my-6">
       <div class="flex justify-between items-center mb-6 no-print border-b pb-4">
@@ -367,35 +365,10 @@
     </div>
   </div>
 
-  <!-- LOGIN VIEW -->
-  <div id="login-view" class="fixed inset-0 bg-slate-50 flex items-center justify-center z-50 p-4">
-    <div class="bg-white/80 backdrop-blur-xl w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl relative z-10">
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-leaf text-3xl text-white"></i></div>
-        <h1 class="text-3xl font-extrabold text-slate-800">SIAGA-SUPERVISI</h1>
-        <p class="text-slate-500 font-medium text-sm">Penjaminan Mutu Pembelajaran</p>
-      </div>
-      <form onsubmit="handleLogin(event)" class="space-y-5">
-        <div>
-          <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Username</label>
-          <input type="text" id="username" required class="w-full px-4 py-3.5 bg-slate-100/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:border-indigo-500 font-semibold outline-none" placeholder="Masukkan Username Anda">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Kata Sandi</label>
-          <input type="password" id="password" required class="w-full px-4 py-3.5 bg-slate-100/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:border-indigo-500 font-semibold outline-none" placeholder="••••••••">
-        </div>
-        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition shadow-lg shadow-indigo-200">Masuk Aplikasi</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MAIN APP VIEW -->
   <div id="app-view" class="hidden flex h-screen w-full bg-slate-50">
     <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden md:hidden"></div>
 
-    <!-- SIDEBAR -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 z-30 bg-white border-r border-slate-200 flex flex-col shadow-soft h-full">
-      <!-- HEADER SIDEBAR -->
       <div class="sidebar-header h-20 flex items-center px-6 border-b border-slate-100 justify-between">
         <div class="flex items-center gap-3 overflow-hidden">
           <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shrink-0">
@@ -408,7 +381,6 @@
         </button>
       </div>
 
-      <!-- USER PROFILE -->
       <div class="sidebar-user-container p-6 border-b border-slate-100">
         <div class="sidebar-user flex items-center gap-4">
           <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xl shrink-0" id="user-initial">A</div>
@@ -419,21 +391,18 @@
         </div>
       </div>
 
-      <!-- MENU -->
       <div class="flex-1 overflow-y-auto py-6 px-4">
         <ul class="space-y-1.5" id="sidebar-menu"></ul>
       </div>
 
-      <!-- LOGOUT -->
       <div class="p-4 border-t border-slate-100">
         <button onclick="logout()" class="logout-button w-full px-4 py-3 rounded-xl text-red-500 font-bold hover:bg-red-50 transition" title="Keluar">
           <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
-          <span class="logout-label">Keluar</span>
+          <span class="logout-label">Kembali ke Portal</span>
         </button>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT LAYOUT -->
     <main id="main-layout" class="flex-1 flex flex-col h-screen overflow-hidden">
       <header class="h-20 glass-effect border-b border-slate-200 px-4 md:px-8 flex items-center gap-4 shrink-0 z-10">
         <button onclick="toggleSidebar()" class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center shadow-sm hover:bg-slate-100 transition active:scale-95" title="Buka/Tutup Menu">
@@ -466,20 +435,96 @@
       }
     };
 
-    /* TOGGLE SIDEBAR UNTUK DESKTOP (ICON ONLY) & MOBILE */
+    /* SSO Integration Functions */
+    window.addEventListener('DOMContentLoaded', () => {
+      checkSSO();
+    });
+
+    function handleMissingSession() {
+        document.body.innerHTML = `
+            <div class="h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+                <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md text-center">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">Akses Ditolak</h2>
+                    <p class="text-sm text-slate-500 mb-6">Sistem mendeteksi tidak ada sesi yang aktif atau Anda (Siswa) tidak memiliki izin. Silakan login melalui Portal Utama SIAGA.</p>
+                    <button onclick="backToPortal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
+                        Kembali ke Portal Utama
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function backToPortal() {
+        try {
+            if (window.location.protocol === 'blob:' || window.location.protocol === 'about:') {
+                UI.showToast('Mode Preview. Anda akan dilempar ke ../index.html', 'info');
+            } else {
+                window.location.href = '../index.html';
+            }
+        } catch (e) {
+            UI.showToast('Kembali ke Portal Utama', 'info');
+        }
+    }
+
+    async function checkSSO() {
+        const savedUserStr = localStorage.getItem('siaga_user');
+        const creds = localStorage.getItem('siaga_credentials');
+
+        if (!savedUserStr) {
+            handleMissingSession();
+            return;
+        }
+
+        try {
+            const savedUser = JSON.parse(savedUserStr);
+            if (savedUser.role === 'siswa') {
+                // Modul Supervisi murni untuk manajemen/guru
+                handleMissingSession();
+            } else if (creds) {
+                const decoded = atob(creds);
+                const firstColon = decoded.indexOf(':');
+                const u = decoded.substring(0, firstColon);
+                const p = decoded.substring(firstColon + 1);
+                
+                const res = await fetchAPI('login', { username: u, password: p });
+                
+                if (res && res.status === 'success') {
+                    currentUser = res.user;
+                    initApp();
+                } else {
+                    localStorage.removeItem('siaga_user');
+                    localStorage.removeItem('siaga_credentials');
+                    handleMissingSession();
+                }
+            } else {
+                handleMissingSession();
+            }
+        } catch(e) {
+            handleMissingSession();
+        }
+    }
+
+    function logout() { 
+        localStorage.removeItem('siaga_user');
+        localStorage.removeItem('siaga_credentials');
+        backToPortal();
+    }
+
+    /* Core UI Toggles */
     function toggleSidebar() { 
       const sidebar = document.getElementById('sidebar');
       const main = document.getElementById('main-layout');
       const overlay = document.getElementById('sidebar-overlay');
 
-      // DESKTOP (Width 18rem -> 5rem)
       if (window.innerWidth >= 768) {
         sidebar.classList.toggle('sidebar-collapsed');
         main.classList.toggle('sidebar-main-collapsed');
         return;
       }
 
-      // MOBILE
       sidebar.classList.toggle('-translate-x-full');
       overlay.classList.toggle('hidden');
     }
@@ -513,23 +558,10 @@
       }
     }
 
-    async function handleLogin(e) {
-      e.preventDefault();
-      const btn = document.getElementById('btn-login'); btn.innerText = "Memverifikasi..."; btn.disabled = true;
-      const res = await fetchAPI('login', { username: document.getElementById('username').value, password: document.getElementById('password').value });
-      btn.innerText = "Masuk Aplikasi"; btn.disabled = false;
-      
-      if(res.status === 'success') { 
-        currentUser = res.user; 
-        UI.showToast(`Halo, ${currentUser.nama}`); 
-        initApp(); 
-      } else UI.showToast(res.message, 'error');
-    }
-
-    function logout() { currentUser = null; document.getElementById('app-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); }
-
     async function initApp() {
-      document.getElementById('login-view').classList.add('hidden');
+      const loadingSso = document.getElementById('loading-sso');
+      if (loadingSso) loadingSso.classList.add('hidden');
+      
       document.getElementById('app-view').classList.remove('hidden');
       document.getElementById('user-name').innerText = currentUser.nama;
       document.getElementById('user-role').innerText = (currentUser.role || 'Pendidik').replace('_', ' ');
