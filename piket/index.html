@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Modern Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -208,9 +209,11 @@
 
     <script>
         // ==========================================
-        // KONFIGURASI API (GOOGLE APPS SCRIPT)
+        // KONFIGURASI SUPABASE
         // ==========================================
-        const API_URL = 'https://script.google.com/macros/s/AKfycbykcSEri3deYFk55atYMcUS46Ay1YUyNgcSCi_uQc38rzJLNlyOv6BZHmiNKEwCij8N/exec'; 
+        const SUPABASE_URL = 'https://wmirlnrreqypgljvgojz.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_UPh63Vm1KlwwVYyBuAjM8A_YvkFXn4p';
+        window.siagaSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
         let globalData = { kehadiran: [], kejadian: [], kehadiranPiket: [], pemantauan: [] };
@@ -279,25 +282,12 @@
         let siswaChartInstance = null;
 
         async function apiCall(action, data = null) {
-            if (!API_URL || API_URL.includes('PASTE_LINK_API')) {
-                console.warn("API URL belum di set.");
-                return { success: false, message: "URL API Belum Diatur" };
+            if (!SUPABASE_URL || SUPABASE_URL.includes('PROJECT_REF') || SUPABASE_ANON_KEY.includes('PASTE_')) {
+                console.warn("Konfigurasi Supabase belum diisi.");
+                return { success: false, message: "URL / anon key Supabase belum diatur" };
             }
-            
-            try {
-                let url = API_URL + '?action=' + action;
-                let options = { method: 'GET' };
-                if (data) {
-                    options = { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } };
-                }
-                const response = await fetch(url, options);
-                return await response.json();
-            } catch (error) { 
-                hideLoading();
-                Swal.fire('Koneksi Gagal', 'Tidak dapat terhubung ke server Google Script.', 'error');
-                if (action === 'getStudentsByClass') return [];
-                return { success: false, message: "Koneksi ke server gagal." }; 
-            }
+            if (!window.siagaApi) return { success: false, message: 'Adapter Supabase belum dimuat.' };
+            return window.siagaApi(action, data || {});
         }
 
         function showLoading(text="Memproses...") { 
@@ -365,44 +355,39 @@
             }
         }
 
-        function checkSSO() {
+        async function checkSSO() {
             document.getElementById('loadingOverlay').classList.remove('hidden');
             document.getElementById('loadingText').innerText = "Memverifikasi Akses Portal...";
             
             const savedUserStr = localStorage.getItem('siaga_user');
             const creds = localStorage.getItem('siaga_credentials');
 
-            if (!savedUserStr) {
-                handleMissingSession();
-                return;
-            }
-
             try {
-                const savedUser = JSON.parse(savedUserStr);
-                if (savedUser.role === 'siswa') {
-                    currentUser = { role: 'SISWA', nama: savedUser.nama, kelas: savedUser.kelas };
+                const { data: sessionData } = await window.siagaSupabase.auth.getSession();
+                if (sessionData.session) {
+                    const res = await apiCall('getCurrentUser');
+                    if (!res.success) throw new Error(res.message);
+                    currentUser = res.user;
                     initApp();
                     hideLoading();
-                } else if (creds) {
+                    return;
+                }
+
+                if (savedUserStr && creds) {
                     const decoded = atob(creds);
                     const firstColon = decoded.indexOf(':');
                     const u = decoded.substring(0, firstColon);
                     const p = decoded.substring(firstColon + 1);
-                    
-                    apiCall('processLogin', {username: u, password: p}).then(res => {
-                        if (res && res.success) {
-                            currentUser = res.user;
-                            initApp();
-                            hideLoading();
-                        } else {
-                            localStorage.removeItem('siaga_user');
-                            localStorage.removeItem('siaga_credentials');
-                            handleMissingSession();
-                        }
-                    });
-                } else {
-                    handleMissingSession();
+                    const res = await apiCall('processLogin', {username: u, password: p});
+                    if (!res || !res.success) throw new Error(res?.message || 'Login gagal');
+                    currentUser = res.user;
+                    // Kredensial relay dipertahankan sementara agar aplikasi
+                    // Mengajar, Supervisi, dan BSAN yang belum dimigrasikan tetap dapat dibuka.
+                    initApp();
+                    hideLoading();
+                    return;
                 }
+                handleMissingSession();
             } catch(e) {
                 handleMissingSession();
             }
@@ -412,8 +397,9 @@
             Swal.fire({
                 title: 'Kembali ke Portal?', text: "Anda akan dikembalikan ke Portal Utama.", icon: 'warning',
                 showCancelButton: true, confirmButtonColor: '#4f46e5', cancelButtonColor: '#ef4444', confirmButtonText: 'Ya, Keluar'
-            }).then((result) => { 
+            }).then(async (result) => { 
                 if (result.isConfirmed) {
+                    await window.siagaSupabase.auth.signOut();
                     backToPortal();
                 }
             });
@@ -2588,5 +2574,6 @@
             </div>`;
         }
     </script>
+    <script src="./supabase-api.js"></script>
 </body>
 </html>
