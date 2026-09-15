@@ -7,6 +7,7 @@
   
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <!-- Load FontAwesome and Fonts -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -782,7 +783,8 @@
 
   <script>
     // URL API Backend Anda (Wajib sesuai deployment Apps Script)
-    const API_URL = "https://script.google.com/macros/s/AKfycbwWJB2dZie2ZvmAbuJLJogRD4mtYDMNVGA7CNfSTb_sjzDUV8Z83aSMz-bZ12ewiQ3g/exec"; 
+    const API_URL = "SUPABASE";
+    window.bsanDb=supabase.createClient('https://wmirlnrreqypgljvgojz.supabase.co','sb_publishable_UPh63Vm1KlwwVYyBuAjM8A_YvkFXn4p');
     
     let loggedUser = null; 
     let appData = { tugas: [], proker: [], temuan: [], portofolio: [] };
@@ -838,14 +840,8 @@
             if (savedUser.role === 'siswa') {
                 setupPublicView(savedUser);
                 toggleLoading(false);
-            } else if (creds) {
-                const decoded = atob(creds);
-                const firstColon = decoded.indexOf(':');
-                const u = decoded.substring(0, firstColon);
-                const p = decoded.substring(firstColon + 1);
-                
-                // Coba login sebagai petugas BSAN
-                const res = await callAPI('loginPetugas', { username: u, pin: p });
+            } else {
+                const res = await callAPI('getCurrentUser', {});
                 toggleLoading(false);
                 
                 if (res.success) {
@@ -853,8 +849,6 @@
                 } else {
                     setupPublicView(savedUser);
                 }
-            } else {
-                handleMissingSession();
             }
         } catch(e) {
             handleMissingSession();
@@ -921,13 +915,7 @@
     // Fungsi Utama Panggilan API
     async function callAPI(action, dataObj = {}) {
       try { 
-          const r = await fetch(API_URL, { 
-              method: 'POST', 
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-              body: JSON.stringify({ action: action, data: dataObj }) 
-          });
-          if (!r.ok) throw new Error("Gagal terhubung."); 
-          return await r.json();
+          return await window.bsanApi(action,dataObj||{});
       } catch (e) { 
           return { success: false, message: "Koneksi terputus. Pastikan URL Apps Script benar dan sudah di-Deploy." }; 
       }
@@ -1836,5 +1824,6 @@
         }
     }
   </script>
+  <script src="./supabase-api.js"></script>
 </body>
 </html>
