@@ -381,14 +381,14 @@
                     const res = await apiCall('processLogin', {username: u, password: p});
                     if (!res || !res.success) throw new Error(res?.message || 'Login gagal');
                     currentUser = res.user;
-                    // Kredensial relay dipertahankan sementara agar aplikasi
-                    // Mengajar, Supervisi, dan BSAN yang belum dimigrasikan tetap dapat dibuka.
+                    localStorage.removeItem('siaga_credentials');
                     initApp();
                     hideLoading();
                     return;
                 }
                 handleMissingSession();
             } catch(e) {
+                localStorage.removeItem('siaga_credentials');
                 handleMissingSession();
             }
         }
