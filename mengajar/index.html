@@ -10,7 +10,8 @@
   <!-- FontAwesome Icons -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- SheetJS & jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -498,7 +499,8 @@
 
   <script>
     // MASUKKAN URL APP SCRIPT SAYA DI SINI:
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGIek0CEDYY-p9Fd_Nw9uknzh0gZfz3jFVbmJr135bNCA7dcAcjG3GKLYtNlekHMjj/exec'; 
+    const SCRIPT_URL = 'SUPABASE';
+    window.mengajarDb = supabase.createClient('https://wmirlnrreqypgljvgojz.supabase.co','sb_publishable_UPh63Vm1KlwwVYyBuAjM8A_YvkFXn4p');
     
     let currentUser = null;
     let activeInputType = ''; 
@@ -563,13 +565,8 @@
                 setupUINavbar();
                 document.getElementById('role-info').innerText = 'Siswa - ' + currentUser.kelas;
                 await loadDataSiswaAuto();
-            } else if (creds) {
-                const decoded = atob(creds);
-                const firstColon = decoded.indexOf(':');
-                const u = decoded.substring(0, firstColon);
-                const p = decoded.substring(firstColon + 1);
-                
-                const res = await callAPI('login', 'POST', { username: u, password: p });
+            } else {
+                const res = await callAPI('getCurrentUser', 'POST', {});
                 if (res && res.success) {
                     currentUser = res.user;
                     setupUINavbar();
@@ -598,8 +595,6 @@
                     localStorage.removeItem('siaga_credentials');
                     handleMissingSession();
                 }
-            } else {
-                handleMissingSession();
             }
         } catch(e) {
             handleMissingSession();
@@ -700,29 +695,7 @@
     async function callAPI(action, method = 'GET', data = null) {
       // Tidak trigger overlay penuh lagi kalau dari background process kecuali inisiasi
       try {
-        let url = SCRIPT_URL;
-        let options = { method: method };
-
-        if (method === 'GET') {
-          let params = new URLSearchParams({ action: action });
-          if (data) {
-            for (let key in data) { params.append(key, data[key]); }
-          }
-          url += '?' + params.toString();
-        } else {
-          options.body = JSON.stringify({ action: action, payload: data });
-          options.headers = { 'Content-Type': 'text/plain' }; 
-        }
-
-        const response = await fetch(url, options);
-        const result = await response.json();
-        
-        if (method === 'GET' && result.success === false) {
-           Swal.fire('Error Database', result.message || 'Terjadi kesalahan sistem', 'error');
-           return null;
-        }
-        
-        return method === 'GET' ? result.data : result;
+        return await window.mengajarApi(action, data || {});
       } catch (err) {
         console.error("API Error:", err);
         Swal.fire('Koneksi Gagal', 'Gagal menghubungi server database. Pastikan koneksi internet aktif.', 'error');
@@ -1502,6 +1475,7 @@
 
       XLSX.writeFile(wb, `Master_Leger_Sekolah_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
-  </script>
+    </script>
+    <script src="./supabase-api.js"></script>
 </body>
 </html>
