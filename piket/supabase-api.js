@@ -103,21 +103,21 @@
   }
 
   async function saveKejadian(data) {
-    let fotoPath = null;
+    let fotoUrl = null;
     if (data.fileData) {
-      const blob = await (await fetch(data.fileData)).blob();
-      const safeName = String(data.fileName || 'bukti.jpg').replace(/[^a-zA-Z0-9._-]/g, '-');
-      fotoPath = `${new Date().getUTCFullYear()}/${crypto.randomUUID()}-${safeName}`;
-      const { error } = await db.storage.from('kejadian-bukti').upload(fotoPath, blob, {
-        contentType: data.fileMimeType || blob.type, upsert: false
+      if (!window.SiagaDrive) throw new Error('Penghubung Google Drive belum dimuat');
+      const uploaded = await window.SiagaDrive.uploadDataUrl(db, data.fileData, {
+        app: 'piket', category: 'kejadian',
+        fileName: data.fileName || 'bukti.jpg', mimeType: data.fileMimeType
       });
-      if (error) throw error;
+      fotoUrl = uploaded.url;
     }
     const student = String(data.deskripsi || '').match(/^Siswa:\s*(.*?)\s*\((.*?)\)\s*-/i);
     const { error } = await db.from('kejadian_harian').insert({
       tanggal: data.tanggal, kategori: data.kategori, sub_kategori: data.subKategori,
       deskripsi_kejadian: data.deskripsi, tindak_lanjut: data.tindakLanjut,
-      guru_piket: data.penginput, foto_path: fotoPath, poin: Number(data.poin || 0),
+      guru_piket: data.penginput, foto_path: null, legacy_foto_url: fotoUrl,
+      poin: Number(data.poin || 0),
       nama_siswa: student ? student[1].trim() : null,
       kelas_siswa: student ? student[2].trim() : null
     });
