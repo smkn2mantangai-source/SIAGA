@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SIAGA-SUPERVISI - Penjaminan Mutu Pembelajaran</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -415,7 +416,8 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxAJP7O33a_or8GjGHWrqtIP05eJHj9BF6toHWlCMKo8VkFMdd78w_rz-dvzV0q4FwwNg/exec';
+    const API_URL = 'SUPABASE';
+    window.supervisiDb=supabase.createClient('https://wmirlnrreqypgljvgojz.supabase.co','sb_publishable_UPh63Vm1KlwwVYyBuAjM8A_YvkFXn4p');
 
     let currentUser = null;
     let listPendidik = [];
@@ -483,13 +485,8 @@
             if (savedUser.role === 'siswa') {
                 // Modul Supervisi murni untuk manajemen/guru
                 handleMissingSession();
-            } else if (creds) {
-                const decoded = atob(creds);
-                const firstColon = decoded.indexOf(':');
-                const u = decoded.substring(0, firstColon);
-                const p = decoded.substring(firstColon + 1);
-                
-                const res = await fetchAPI('login', { username: u, password: p });
+            } else {
+                const res = await fetchAPI('getCurrentUser', {});
                 
                 if (res && res.status === 'success') {
                     currentUser = res.user;
@@ -499,8 +496,6 @@
                     localStorage.removeItem('siaga_credentials');
                     handleMissingSession();
                 }
-            } else {
-                handleMissingSession();
             }
         } catch(e) {
             handleMissingSession();
@@ -508,6 +503,7 @@
     }
 
     function logout() { 
+        window.supervisiDb.auth.signOut();
         localStorage.removeItem('siaga_user');
         localStorage.removeItem('siaga_credentials');
         backToPortal();
@@ -550,8 +546,7 @@
 
     async function fetchAPI(action, payload) {
       try {
-        const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, payload: payload }) });
-        return await response.json();
+        return await window.supervisiApi(action,payload||{});
       } catch (e) {
         UI.showToast("Koneksi gagal. Cek jaringan/CORS.", "error");
         return {status:'error'};
@@ -1451,5 +1446,6 @@
       if(res.status === 'success') renderChatDokumen(res.data);
     }
   </script>
+  <script src="./supabase-api.js"></script>
 </body>
 </html>
