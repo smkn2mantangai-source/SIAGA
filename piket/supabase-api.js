@@ -21,9 +21,11 @@
   }
 
   async function profileFor(userId) {
+    const { data: profileId, error: idError } = await db.rpc('current_profile_id');
+    if (idError || !profileId) throw idError || new Error('Profil sesi tidak ditemukan');
     const { data, error } = await db.from('profiles')
       .select('legacy_username,role,nama,kelas')
-      .eq('auth_user_id', userId)
+      .eq('id', profileId)
       .single();
     if (error) throw error;
     return { username: data.legacy_username, role: data.role, nama: data.nama, kelas: data.kelas };
