@@ -12,6 +12,7 @@
     
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -358,19 +359,28 @@
          * Dipakai HANYA untuk validasi login staff & ambil daftar siswa per kelas. 
          * Landing page TIDAK menulis/mengubah data apapun ke backend ini. 
          */
-        const AUTH_API_URL = 'https://script.google.com/macros/s/AKfycbykcSEri3deYFk55atYMcUS46Ay1YUyNgcSCi_uQc38rzJLNlyOv6BZHmiNKEwCij8N/exec';
+        const SUPABASE_URL = 'https://wmirlnrreqypgljvgojz.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_UPh63Vm1KlwwVYyBuAjM8A_YvkFXn4p';
+        const siagaDb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function callAuthAPI(action, data = null) {
             try {
-                let url = AUTH_API_URL + '?action=' + action;
-                let options = { method: 'GET' };
-                if (data) {
-                    options = { method: 'POST', body: JSON.stringify(data), headers: { 'Content-Type': 'text/plain;charset=utf-8' } };
+                if (action === 'getStudentsByClass') {
+                    const {data: rows, error} = await siagaDb.rpc('list_students', {p_class: data.kelas});
+                    if (error) throw error;
+                    return rows;
                 }
-                const response = await fetch(url, options);
-                return await response.json();
+                if (action === 'processLogin') {
+                    const email = `${String(data.username).trim().toLowerCase().replace(/[^a-z0-9._-]/g,'-')}@siaga.local`;
+                    const {data: auth, error} = await siagaDb.auth.signInWithPassword({email, password:String(data.password)});
+                    if (error) return {success:false,message:'Username atau password salah.'};
+                    const {data: p, error: pe} = await siagaDb.from('profiles').select('*').eq('auth_user_id',auth.user.id).single();
+                    if (pe) throw pe;
+                    return {success:true,user:{username:p.legacy_username,nama:p.nama,role:p.role,kelas:p.kelas}};
+                }
+                return {success:false,message:'Action tidak tersedia'};
             } catch (error) {
-                showToast('Tidak dapat terhubung ke server. Cek koneksi internet Anda.', 'error');
+                showToast(error.message || 'Tidak dapat terhubung ke Supabase.', 'error');
                 return { success: false, message: 'Koneksi ke server gagal.' };
             }
         }
@@ -463,7 +473,7 @@
             
             // Simpan ke localStorage agar bisa diakses aplikasi anak (opsional)
             localStorage.setItem('siaga_user', JSON.stringify({ role: currentRole, nama: res.user.nama, username: user }));
-            localStorage.setItem('siaga_credentials', btoa(`${user}:${pass}`)); // Simpan basic auth untuk relay
+            localStorage.removeItem('siaga_credentials');
 
             document.getElementById('dash-staff-welcome').innerText = 'Halo, ' + res.user.nama + '!';
             showToast('Login berhasil.', 'success');
@@ -471,7 +481,7 @@
         }
 
         // Proses Pencarian Siswa (nama dipilih dari dropdown, sudah pasti valid)
-        function processSiswaSearch() {
+        async function processSiswaSearch() {
             const kelas = document.getElementById('input-siswa-kelas').value;
             const nama = document.getElementById('input-siswa-nama').value;
             
@@ -480,8 +490,15 @@
                 return;
             }
 
-            // Simpan ke localStorage agar bisa diakses aplikasi anak
-            localStorage.setItem('siaga_user', JSON.stringify({ role: 'siswa', nama: nama, kelas: kelas }));
+            await siagaDb.auth.signOut();
+            const {error: authError} = await siagaDb.auth.signInAnonymously();
+            if (authError) {
+                showToast('Aktifkan Anonymous Sign-Ins di Supabase Auth terlebih dahulu.', 'error');
+                return;
+            }
+            const {data: claim, error: claimError} = await siagaDb.rpc('claim_student_session',{p_name:nama,p_class:kelas});
+            if (claimError) { showToast(claimError.message,'error'); return; }
+            localStorage.setItem('siaga_user', JSON.stringify(claim));
 
             document.getElementById('dash-siswa-nama').innerText = nama;
             document.getElementById('dash-siswa-kelas').innerText = kelas;
@@ -489,14 +506,17 @@
             switchView('view-siswa');
         }
 
-        function logout() {
+        async function logout() {
+            await siagaDb.auth.signOut();
             localStorage.removeItem('siaga_user');
             localStorage.removeItem('siaga_credentials');
             switchView('view-roles');
         }
         
         // Cek sesi aktif saat halaman dimuat
-        window.onload = function() {
+        window.onload = async function() {
+            const {data:{session}} = await siagaDb.auth.getSession();
+            if (!session) { localStorage.removeItem('siaga_user'); return; }
             const savedUserStr = localStorage.getItem('siaga_user');
             if (savedUserStr) {
                 try {
